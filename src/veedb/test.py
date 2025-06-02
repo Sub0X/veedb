@@ -3,19 +3,14 @@ import asyncio
 import os
 import sys
 
-# This is to ensure the script can find the 'veedb' package if run directly
-# from the 'src/veedb' directory for testing purposes before installation.
-# For a proper test suite run after installation, this might not be needed.
 if __name__ == '__main__':
-    # Get the parent directory of the current file's directory (src/)
-    # and add it to sys.path so 'from veedb import ...' works.
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    src_dir = os.path.dirname(current_dir) # This should be the 'src' directory
+    src_dir = os.path.dirname(current_dir) # src dir
     if src_dir not in sys.path:
         sys.path.insert(0, src_dir)
 
 
-from veedb import VNDB, QueryRequest # Assuming veedb is in src/ and src/ is in PYTHONPATH
+from veedb import VNDB, QueryRequest
 from veedb.exceptions import VNDBAPIError, AuthenticationError
 from veedb.apitypes.common import VNDBID
 
@@ -25,8 +20,6 @@ async def run_tests():
     """
     print("Starting Veedb SDK Quick Test...\n")
 
-    # It's highly recommended to use an environment variable for your API token.
-    # For tests that don't require authentication or for sandbox, it might be optional.
     api_token = os.environ.get("VNDB_API_TOKEN")
     use_sandbox = False # Always use sandbox for automated/quick tests unless specifically testing live
 
@@ -236,6 +229,49 @@ async def run_tests():
             print(f"  ASSERTION ERROR fetching characters from VN: {e}")
         except Exception as e:
             print(f"  UNEXPECTED ERROR fetching characters from VN: {e}")
+    
+        # Test 8: Ulist Endpoint Test
+        # Using a known public user like "u2" (Yorhel) for reliability.
+        # The user "u286975" from the image can also be used if their list is public.
+        ulist_user_id: VNDBID = "u286975" 
+        print(f"\n[Test 8: POST /ulist (Query for user {ulist_user_id})]")
+        try:
+            ulist_query = QueryRequest(
+                # user field in QueryRequest is set by vndb.ulist.query method
+                fields="id, vote, vn{id, title, rating}, labels{id,label}", # vn.title is good, vn.id and vn.rating for more info
+                sort="vote",    # Sort by user's vote
+                reverse=True,   # Highest votes first
+                results=5,      # Get a few results for the test
+                page=1          # Default page is 1
+                # filters=["label","=",7] # Example: filter by 'Voted' label (id 7)
+            )
+            # The user_id is passed directly to the ulist.query method
+            response = await vndb.ulist.query(user_id=ulist_user_id, query_options=ulist_query)
+            
+            if response.results:
+                print(f"  SUCCESS: Fetched {len(response.results)} ulist entries for user {ulist_user_id} (sorted by vote desc, showing up to 5):")
+                for item in response.results:
+                    vn_details = item.vn or {} # item.vn is a dict of selected vn fields
+                    labels_str = ", ".join([f"{lbl.label}({lbl.id})" for lbl in item.labels]) if item.labels else "No Labels"
+                    print(f"    - VN: {vn_details.get('title', 'N/A')} (ID: {item.id}, VN Rating: {vn_details.get('rating', 'N/A')}), User Vote: {item.vote}")
+                    print(f"      Labels: [{labels_str}]")
+                while response.more:
+                    ulist_query.page += 1  # Increment page to get more results
+                    response = await vndb.ulist.query(user_id=ulist_user_id, query_options=ulist_query)
+                    for item in response.results:
+                        vn_details = item.vn or {}
+                        labels_str = ", ".join([f"{lbl.label}({lbl.id})" for lbl in item.labels]) if item.labels else "No Labels"
+                        print(f"    - VN: {vn_details.get('title', 'N/A')} (ID: {item.id}, VN Rating: {vn_details.get('rating', 'N/A')}), User Vote: {item.vote}")
+                        print(f"      Labels: [{labels_str}]")
+            else:
+                print(f"  No ulist entries found for user {ulist_user_id} with the given query (or list is private/empty).")
+        except VNDBAPIError as e:
+            print(f"  ERROR fetching ulist for {ulist_user_id}: {e}")
+        except AssertionError as e:
+            print(f"  ASSERTION ERROR fetching ulist for {ulist_user_id}: {e}")
+        except Exception as e:
+            print(f"  UNEXPECTED ERROR fetching ulist for {ulist_user_id}: {e}")
+
         
         
 
@@ -248,3 +284,5 @@ if __name__ == "__main__":
     # Ensure your VNDB_API_TOKEN environment variable is set if you want to test authenticated parts.
     # Example: VNDB_API_TOKEN="your-token-here" python quick_test.py
     asyncio.run(run_tests())
+
+
