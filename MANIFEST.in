@@ -1,0 +1,9 @@
+include README.md
+include LICENSE*
+include src/veedb/VERSION
+include src/veedb/py.typed
+recursive-include src/veedb *.py
+recursive-include docs *.rst *.py *.txt Makefile
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]
+recursive-exclude * *.pyo

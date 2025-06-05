@@ -95,6 +95,54 @@ async def main():
                 print(f"  Error fetching random quote: {e}")
             print("\n")
 
+
+            # Added code to demonstrate fetching schema
+            print("Fetching VNDB schema:")
+            try:
+                schema = await vndb.get_schema()
+                print(f"  Found /vn fields in schema? {'/vn' in schema.get('api_fields', {})}")
+            except VNDBAPIError as e:
+                print(f"  Error fetching schema: {e}")
+            print("\n")
+
+            # Added code to demonstrate fetching a public user's info
+            public_user_id = "u286975"
+            print(f"Fetching public user info for '{public_user_id}':")
+            try:
+                user_info_dict = await vndb.get_user(q=public_user_id, fields="lengthvotes,lengthvotes_sum")
+                user_info = user_info_dict.get(public_user_id)
+                if user_info:
+                    print(f"  Found user {user_info.username} (ID: {user_info.id})")
+                else:
+                    print("  No user info found or user is not public.")
+            except VNDBAPIError as e:
+                print(f"  Error fetching user info: {e}")
+            print("\n")
+
+            # Added code to demonstrate querying a character
+            print("Querying character 'c5' (Takeshi Kuranari from Ever17):")
+            char_query = QueryRequest(
+                filters=["id", "=", "c5"],
+                fields="id,name,original,blood_type,birthday,vns{id,title,role}",
+                results=1
+            )
+            try:
+                char_response = await vndb.character.query(char_query)
+                if char_response.results:
+                    char_data = char_response.results[0]
+                    print(f"  Name: {char_data.name} (ID: {char_data.id})")
+                    print(f"  Original: {char_data.original}")
+                    print(f"  Blood Type: {char_data.blood_type}, Birthday: {char_data.birthday}")
+                    if char_data.vns:
+                        first_vn = char_data.vns[0]
+                        print(f"  Appears in: {first_vn.title} (ID: {first_vn.id}), Role: {first_vn.role}")
+                else:
+                    print("  No data returned for character c5.")
+            except VNDBAPIError as e:
+                print(f"  Error fetching character 'c5': {e}")
+            print("\n")
+
+
             target_user_id = "u2"
             print(f"Fetching ulist for user '{target_user_id}' (first 5 VNs, sorted by vote desc):")
             try:

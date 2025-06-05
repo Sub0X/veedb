@@ -1,4 +1,3 @@
-# vndb_sdk/types/entities/quote.py
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING, Dict, Any
 

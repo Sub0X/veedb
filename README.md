@@ -1,4 +1,4 @@
-# VeeDB SDK (Async)
+# VeeDB (Async)
 
 An unofficial asynchronous Python wrapper for the [VNDB.org API v2 (Kana)](https://vndb.org/d11). "Vee" for the v-sign pose and starting letter for VNDB, "DB" for database.
 
@@ -159,4 +159,3 @@ Contributions are welcome! Please feel free to submit pull requests or open issu
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-*(This SDK is unofficial and not affiliated with VNDB.org)*

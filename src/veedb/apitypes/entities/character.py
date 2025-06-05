@@ -1,4 +1,3 @@
-# vndb_sdk/types/entities/character.py
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Union, Literal, TYPE_CHECKING
 

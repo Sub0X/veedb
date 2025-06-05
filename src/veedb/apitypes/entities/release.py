@@ -1,4 +1,3 @@
-# vndb_sdk/types/entities/release.py
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple, Union, Any, Literal, TYPE_CHECKING
 

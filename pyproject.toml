@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "veedb"
+dynamic = ["version"]
+description = "An asynchronous Python wrapper for the VNDB API (Kana)."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Sub01", email = "Sub01@subsoft.dev"},
+]
+maintainers = [
+    {name = "Sub01", email = "Sub01@subsoft.dev"},
+]
+keywords = ["vndb", "visual novel", "api", "async", "wrapper"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Developers",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Games/Entertainment",
+    "Framework :: AsyncIO",
+    "Development Status :: 4 - Beta",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "aiohttp>=3.8.0,<5.0.0",
+    "dacite>=1.6.0,<2.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Sub0X/veedb"
+Repository = "https://github.com/Sub0X/veedb"
+Documentation = "https://veedb.readthedocs.io"
+"Bug Tracker" = "https://github.com/Sub0X/veedb/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+veedb = ["py.typed", "VERSION"]
+
+[tool.setuptools.dynamic]
+version = {file = "src/veedb/VERSION"}

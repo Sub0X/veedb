@@ -1,17 +1,21 @@
 # src/veedb/types/requests.py
 from dataclasses import dataclass, field
 from typing import Optional, List, Literal
-from .common import VNDBID, ReleaseDate # Assuming ReleaseDate is YYYY-MM-DD string or similar
+from .common import (
+    VNDBID,
+    ReleaseDate,
+)  # Assuming ReleaseDate is YYYY-MM-DD string or similar
+
 
 @dataclass
 class UlistUpdatePayload:
-    vote: Optional[int] = None # 10-100, or null to remove
-    notes: Optional[str] = None # null to remove
-    started: Optional[ReleaseDate] = None # "YYYY-MM-DD", or null to remove
-    finished: Optional[ReleaseDate] = None # "YYYY-MM-DD", or null to remove
-    labels: Optional[List[int]] = None # Overwrites existing labels
-    labels_set: Optional[List[int]] = None # Adds these labels
-    labels_unset: Optional[List[int]] = None # Removes these labels
+    vote: Optional[int] = None  # 10-100, or null to remove
+    notes: Optional[str] = None  # null to remove
+    started: Optional[ReleaseDate] = None  # "YYYY-MM-DD", or null to remove
+    finished: Optional[ReleaseDate] = None  # "YYYY-MM-DD", or null to remove
+    labels: Optional[List[int]] = None  # Overwrites existing labels
+    labels_set: Optional[List[int]] = None  # Adds these labels
+    labels_unset: Optional[List[int]] = None  # Removes these labels
 
     def to_dict(self) -> dict:
         """Converts to dict, removing None values, for JSON payload."""
