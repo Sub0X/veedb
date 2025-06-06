@@ -1,5 +1,6 @@
 import asyncio
 import aiohttp
+import logging
 from typing import List, Optional, Union, TypeVar, Type, Dict, Any, Generic
 
 from .methods.fetch import _fetch_api
@@ -44,6 +45,25 @@ T_QueryItem = TypeVar("T_QueryItem")
 from dacite import from_dict, Config as DaciteConfig
 
 dacite_config = DaciteConfig(check_types=False)
+
+
+class _SSLTimeoutFilter(logging.Filter):
+    """Filter to suppress harmless SSL shutdown timeout errors from aiohttp."""
+    
+    def filter(self, record):
+        # Suppress the specific SSL shutdown timeout error
+        if (record.levelname == "ERROR" and 
+            "Error while closing connector" in record.getMessage() and
+            "SSL shutdown timed out" in record.getMessage()):
+            return False
+        return True
+
+
+# Apply the filter to suppress SSL timeout errors
+_ssl_filter = _SSLTimeoutFilter()
+logging.getLogger().addFilter(_ssl_filter)
+logging.getLogger("aiohttp").addFilter(_ssl_filter)
+logging.getLogger("asyncio").addFilter(_ssl_filter)
 
 
 class _BaseEntityClient(Generic[T_Entity, T_QueryItem]):
@@ -263,10 +283,8 @@ class VNDB:
     ):
         self.api_token = api_token
         self.base_url = SANDBOX_URL if use_sandbox else BASE_URL
-        self._session_param = session  # Store the session passed in init
-        self._session_internal: Optional[aiohttp.ClientSession] = (
-            None  # Internal session, managed if _session_param is None
-        )
+        self._session_param = session
+        self._session_internal: Optional[aiohttp.ClientSession] = None
         self._session_owner = session is None
 
         self.vn = _VNClient(self)
@@ -283,37 +301,78 @@ class VNDB:
     def _get_session(self) -> aiohttp.ClientSession:
         if self._session_param is not None:
             if self._session_param.closed:
-                raise RuntimeError("Externally provided session is closed.")
+                raise RuntimeError(
+                    "Externally provided aiohttp.ClientSession is closed."
+                )
             return self._session_param
 
         if self._session_internal is None or self._session_internal.closed:
-            if self._session_owner:
-                self._session_internal = aiohttp.ClientSession()
-            else:
-                # This case should ideally not be hit if logic is correct,
-                # as _session_param would be used if not owner.
-                raise RuntimeError(
-                    "Session not available and instance does not own the session."
+            if self._session_owner:                # Configure TCPConnector with settings to improve SSL shutdown handling
+                connector = aiohttp.TCPConnector(
+                    enable_cleanup_closed=True,
+                    ttl_dns_cache=60,
+                    use_dns_cache=True,
+                    force_close=True,  # Force close connections instead of keeping them alive
+                    limit_per_host=10  # Limit concurrent connections per host
+                )
+                
+                # Set a more reasonable timeout for the entire session
+                timeout = aiohttp.ClientTimeout(
+                    total=30,  # Total timeout
+                    connect=10,  # Connection timeout
+                    sock_read=10  # Socket read timeout
+                )
+                
+                self._session_internal = aiohttp.ClientSession(
+                    connector=connector,
+                    timeout=timeout
+                )
+            else:                raise RuntimeError(
+                    "aiohttp.ClientSession not available. "
+                    "VNDB client was not provided a session and does not own one to create."
                 )
         return self._session_internal
 
     async def close(self):
         if (
-            self._session_internal
+            self._session_internal is not None
             and self._session_owner
             and not self._session_internal.closed
         ):
-            await self._session_internal.close()
-            # self._session_internal = None # No need to set to None if __aexit__ is the only closer
+            # Yield control to the event loop to allow pending operations
+            await asyncio.sleep(0)
+            
+            try:
+                # Close the session with a timeout to prevent hanging
+                await asyncio.wait_for(
+                    self._session_internal.close(), 
+                    timeout=2.0  # Reduced timeout for session close
+                )
+                
+                # Also close the underlying connector if available
+                if hasattr(self._session_internal, 'connector') and self._session_internal.connector:
+                    await asyncio.wait_for(
+                        self._session_internal.connector.close(),
+                        timeout=1.0  # Short timeout for connector close
+                    )
+                    
+            except asyncio.TimeoutError:
+                # If close times out, we can't do much more
+                # The session will eventually be cleaned up by the garbage collector
+                pass
+            except Exception:
+                # Ignore other exceptions during close (e.g., SSL errors)
+                # These are usually harmless cleanup issues
+                pass
+                
+            # Brief delay to allow final cleanup
+            await asyncio.sleep(0.05)
 
     async def __aenter__(self):
-        # Session is created lazily by _get_session() if owned and not existing.
-        # If an external session is provided, we just use it.
-        # No explicit action needed here for session creation beyond what _get_session() does.
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
-        await self.close()  # This will only close if _session_owner is True
+        await self.close()
 
     async def get_schema(self) -> dict:
         url = f"{self.base_url}/schema"
@@ -338,8 +397,6 @@ class VNDB:
         if fields:
             params["fields"] = fields
 
-        print(f"Fetching user info for: {q} with fields: {fields}")
-
         session = self._get_session()
         response_data = await _fetch_api(
             session=session, method="GET", url=url, token=self.api_token, params=params
@@ -348,9 +405,12 @@ class VNDB:
         parsed_response: Dict[str, Optional[User]] = {}
         for key, value_data in response_data.items():
             if value_data:
-                parsed_response[key] = from_dict(
-                    data_class=User, data=value_data, config=dacite_config
-                )
+                try:
+                    parsed_response[key] = from_dict(
+                        data_class=User, data=value_data, config=dacite_config
+                    )
+                except Exception: # Catch parsing errors
+                    parsed_response[key] = None
             else:
                 parsed_response[key] = None
         return parsed_response
