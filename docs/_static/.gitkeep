@@ -1,0 +1,3 @@
+# This file keeps the _static directory in version control
+# The _static directory is used by Sphinx for custom static files
+# such as CSS, JavaScript, or images for documentation themes.
