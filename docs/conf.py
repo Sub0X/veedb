@@ -46,7 +46,12 @@ else:
     extensions.append('sphinx_rtd_theme')
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = [
+    '_build', 
+    'Thumbs.db', 
+    '.DS_Store',
+    'doc-status.json',  # Exclude our status file from builds
+]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -108,3 +113,27 @@ napoleon_use_rtype = True
 
 # -- Intersphinx mapping -----------------------------------------------------
 intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+
+# -- EPUB options -------------------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-epub-output
+
+epub_title = project
+epub_author = author
+epub_publisher = author
+epub_copyright = copyright
+epub_language = 'en'
+
+# Exclude problematic files from EPUB builds
+epub_exclude_files = [
+    '.nojekyll',
+    'doc-status.json',
+]
+
+# Handle unknown MIME types by excluding them
+epub_pre_files = []
+epub_post_files = []
+
+# Additional EPUB configuration to prevent warnings
+epub_use_index = True
+epub_show_urls = 'footnote'
+epub_basename = 'VeeDB'
