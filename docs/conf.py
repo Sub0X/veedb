@@ -17,6 +17,9 @@ def get_version():
     except FileNotFoundError:
         return "0.1.0"  # fallback version
 
+# Check if we're building on Read the Docs
+on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -24,6 +27,7 @@ project = 'VeeDB'
 copyright = f'{datetime.now().year}, Sub0X'
 author = 'Sub0X'
 release = get_version()
+version = release  # Short version for Read the Docs
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -33,8 +37,13 @@ extensions = [
     'sphinx.ext.napoleon', # For Google and NumPy style docstrings
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
 ]
+
+# Add Read the Docs specific extensions
+if on_rtd:
+    extensions.append('sphinx.ext.githubpages')
+else:
+    extensions.append('sphinx_rtd_theme')
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -44,6 +53,35 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+# Read the Docs theme options
+html_theme_options = {
+    'navigation_depth': 4,
+    'collapse_navigation': False,
+    'sticky_navigation': True,
+    'includehidden': True,
+    'titles_only': False,
+    'logo_only': False,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': True,
+}
+
+# Additional Read the Docs configuration
+html_title = f"{project} v{version}"
+html_short_title = project
+html_show_sourcelink = True
+html_show_sphinx = True
+html_show_copyright = True
+
+# For Read the Docs builds
+if on_rtd:
+    html_context = {
+        'display_github': True,
+        'github_user': 'Sub01',  # Replace with your GitHub username
+        'github_repo': 'veedb',  # Replace with your repo name
+        'github_version': 'main',
+        'conf_py_path': '/docs/',
+    }
 
 # -- Autodoc options ---------------------------------------------------------
 autodoc_member_order = 'bysource'

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2025-06-07T12:14:01.521619",
+  "documentation": {
+    "status": "success",
+    "last_build": "2025-06-07T11:48:19.176763",
+    "statistics": {
+      "rst_files": 12,
+      "api_files": 4,
+      "total_lines": 3794
+    }
+  },
+  "badges": {
+    "docs_status": "https://img.shields.io/badge/docs-success-green",
+    "rst_files": "https://img.shields.io/badge/RST%20files-12-blue",
+    "api_docs": "https://img.shields.io/badge/API%20docs-4-blue",
+    "lines": "https://img.shields.io/badge/doc%20lines-3794-blue"
+  }
+}

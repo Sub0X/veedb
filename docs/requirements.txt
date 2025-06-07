@@ -1,6 +1,14 @@
+# Sphinx core requirements
 Sphinx>=4.0
 sphinx_rtd_theme>=1.0
+
+# Project dependencies needed for autodoc
 aiohttp>=3.8.0
 dacite>=1.6.0
-# For building documentation locally
+
+# Documentation enhancements
 sphinx-autodoc-typehints
+sphinx-copybutton
+
+# Read the Docs compatibility
+readthedocs-sphinx-search

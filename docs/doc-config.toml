@@ -1,0 +1,38 @@
+# Documentation Configuration Settings
+# This file contains configuration for different documentation build environments
+
+[build]
+# Default build settings
+source_dir = "."
+build_dir = "_build"
+doctree_dir = "_build/doctrees"
+
+[html]
+# HTML output settings
+theme = "furo"
+static_path = ["_static"]
+templates_path = ["_templates"]
+
+[linkcheck]
+# Link checking settings
+ignore = [
+    "http://localhost:8000/",
+    "http://example.com",
+    "https://example.org"
+]
+
+[extensions]
+# Required Sphinx extensions
+required = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon", 
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+    "sphinx_copybutton"
+]
+
+[intersphinx]
+# External documentation links
+python = "https://docs.python.org/3/"
+requests = "https://requests.readthedocs.io/en/latest/"
+aiohttp = "https://docs.aiohttp.org/en/stable/"
