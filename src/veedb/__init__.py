@@ -4,6 +4,7 @@ import os
 # Ensure client is imported first if other modules depend on its definitions indirectly
 # or if it's the primary export.
 from .client import VNDB
+from .schema_validator import FilterValidator, SchemaCache
 
 from .exceptions import (
     VNDBAPIError,
@@ -27,6 +28,7 @@ from .apitypes.common import (
     ProducerTypeEnum,
     DevStatusEnum,
 )
+from .apitypes.entities.user import UserStats
 from .apitypes.requests import UlistUpdatePayload, RlistUpdatePayload
 
 # Read version dynamically from VERSION file
@@ -46,6 +48,8 @@ __version__ = _get_version()
 # More importantly, these are the names looked up for 'from veedb import VNDB'
 __all__ = [
     "VNDB",
+    "FilterValidator",
+    "SchemaCache",
     "QueryRequest",
     "VNDBAPIError",
     "AuthenticationError",
@@ -62,6 +66,7 @@ __all__ = [
     "TagCategoryEnum",
     "ProducerTypeEnum",
     "DevStatusEnum",
+    "UserStats",
     "UlistUpdatePayload",
     "RlistUpdatePayload",
     "__version__",

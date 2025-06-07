@@ -10,7 +10,7 @@ from .apitypes.common import (
     VNDBID,
     LanguageEnum,
     PlatformEnum,
-)  # etc.
+)
 from .apitypes.entities import (
     VN,
     Release,
@@ -35,6 +35,8 @@ from .exceptions import (
     RateLimitError,
     ServerError,
 )
+from .schema_validator import FilterValidator, SchemaCache
+
 
 BASE_URL = "https://api.vndb.org/kana"
 SANDBOX_URL = "https://beta.vndb.org/api/kana"
@@ -51,15 +53,12 @@ class _SSLTimeoutFilter(logging.Filter):
     """Filter to suppress harmless SSL shutdown timeout errors from aiohttp."""
     
     def filter(self, record):
-        # Suppress the specific SSL shutdown timeout error
         if (record.levelname == "ERROR" and 
             "Error while closing connector" in record.getMessage() and
             "SSL shutdown timed out" in record.getMessage()):
             return False
         return True
 
-
-# Apply the filter to suppress SSL timeout errors
 _ssl_filter = _SSLTimeoutFilter()
 logging.getLogger().addFilter(_ssl_filter)
 logging.getLogger("aiohttp").addFilter(_ssl_filter)
@@ -84,9 +83,7 @@ class _BaseEntityClient(Generic[T_Entity, T_QueryItem]):
     ) -> QueryResponse[T_QueryItem]:
         url = f"{self._client.base_url}{self._endpoint_path}"
         payload = query_options.to_dict()
-
-        # Use the session managed by the main VNDB client
-        session = self._client._get_session()  # Ensures session is available
+        session = self._client._get_session()
         response_data = await _fetch_api(
             session=session,
             method="POST",
@@ -117,41 +114,42 @@ class _BaseEntityClient(Generic[T_Entity, T_QueryItem]):
             query_options.fields = "id"
         return await self._post_query(query_options)
 
+    async def validate_filters(self, filters: Union[List, str, None]) -> Dict[str, Any]:
+        """Validates filters against the schema for this specific endpoint."""
+        return await self._client.validate_filters(self._endpoint_path, filters)
+    
+    async def get_available_fields(self) -> List[str]:
+        """Gets all available filterable fields for this endpoint."""
+        return await self._client.get_available_fields(self._endpoint_path)
+
 
 class _VNClient(_BaseEntityClient[VN, VN]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/vn", VN, VN)
 
-
 class _ReleaseClient(_BaseEntityClient[Release, Release]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/release", Release, Release)
-
 
 class _ProducerClient(_BaseEntityClient[Producer, Producer]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/producer", Producer, Producer)
 
-
 class _CharacterClient(_BaseEntityClient[Character, Character]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/character", Character, Character)
-
 
 class _StaffClient(_BaseEntityClient[Staff, Staff]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/staff", Staff, Staff)
 
-
 class _TagClient(_BaseEntityClient[Tag, Tag]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/tag", Tag, Tag)
 
-
 class _TraitClient(_BaseEntityClient[Trait, Trait]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/trait", Trait, Trait)
-
 
 class _QuoteClient(_BaseEntityClient[Quote, Quote]):
     def __init__(self, client: "VNDB"):
@@ -168,8 +166,7 @@ class _UlistClient:
         url = f"{self._client.base_url}/ulist"
         payload = query_options.to_dict()
         payload["user"] = user_id
-
-        session = self._client._get_session()  # Use managed session
+        session = self._client._get_session()
         response_data = await _fetch_api(
             session=session,
             method="POST",
@@ -199,8 +196,7 @@ class _UlistClient:
             params["user"] = user_id
         if fields:
             params["fields"] = fields
-
-        session = self._client._get_session()  # Use managed session
+        session = self._client._get_session()
         response_data = await _fetch_api(
             session=session,
             method="GET",
@@ -208,7 +204,6 @@ class _UlistClient:
             token=self._client.api_token,
             params=params,
         )
-
         return [
             from_dict(data_class=UlistLabel, data=label, config=dacite_config)
             for label in response_data.get("labels", [])
@@ -216,11 +211,9 @@ class _UlistClient:
 
     async def update_entry(self, vn_id: VNDBID, payload: UlistUpdatePayload) -> None:
         if not self._client.api_token:
-            raise AuthenticationError(
-                "listwrite permission and token required for ulist updates."
-            )
+            raise AuthenticationError("listwrite permission and token required for ulist updates.")
         url = f"{self._client.base_url}/ulist/{vn_id}"
-        session = self._client._get_session()  # Use managed session
+        session = self._client._get_session()
         await _fetch_api(
             session=session,
             method="PATCH",
@@ -231,29 +224,21 @@ class _UlistClient:
 
     async def delete_entry(self, vn_id: VNDBID) -> None:
         if not self._client.api_token:
-            raise AuthenticationError(
-                "listwrite permission and token required for ulist deletions."
-            )
+            raise AuthenticationError("listwrite permission and token required for ulist deletions.")
         url = f"{self._client.base_url}/ulist/{vn_id}"
-        session = self._client._get_session()  # Use managed session
-        await _fetch_api(
-            session=session, method="DELETE", url=url, token=self._client.api_token
-        )
+        session = self._client._get_session()
+        await _fetch_api(session=session, method="DELETE", url=url, token=self._client.api_token)
 
 
 class _RlistClient:
     def __init__(self, client: "VNDB"):
         self._client = client
 
-    async def update_entry(
-        self, release_id: VNDBID, payload: RlistUpdatePayload
-    ) -> None:
+    async def update_entry(self, release_id: VNDBID, payload: RlistUpdatePayload) -> None:
         if not self._client.api_token:
-            raise AuthenticationError(
-                "listwrite permission and token required for rlist updates."
-            )
+            raise AuthenticationError("listwrite permission and token required for rlist updates.")
         url = f"{self._client.base_url}/rlist/{release_id}"
-        session = self._client._get_session()  # Use managed session
+        session = self._client._get_session()
         await _fetch_api(
             session=session,
             method="PATCH",
@@ -264,14 +249,10 @@ class _RlistClient:
 
     async def delete_entry(self, release_id: VNDBID) -> None:
         if not self._client.api_token:
-            raise AuthenticationError(
-                "listwrite permission and token required for rlist deletions."
-            )
+            raise AuthenticationError("listwrite permission and token required for rlist deletions.")
         url = f"{self._client.base_url}/rlist/{release_id}"
-        session = self._client._get_session()  # Use managed session
-        await _fetch_api(
-            session=session, method="DELETE", url=url, token=self._client.api_token
-        )
+        session = self._client._get_session()
+        await _fetch_api(session=session, method="DELETE", url=url, token=self._client.api_token)
 
 
 class VNDB:
@@ -280,12 +261,29 @@ class VNDB:
         api_token: Optional[str] = None,
         use_sandbox: bool = False,
         session: Optional[aiohttp.ClientSession] = None,
+        local_schema_path: Optional[str] = None, 
+        schema_cache_dir: str = ".veedb_cache", 
+        schema_cache_ttl_hours: float = 24.0,
     ):
         self.api_token = api_token
         self.base_url = SANDBOX_URL if use_sandbox else BASE_URL
         self._session_param = session
         self._session_internal: Optional[aiohttp.ClientSession] = None
         self._session_owner = session is None
+        
+        # Store schema configuration
+        self.local_schema_path = local_schema_path
+        self.schema_cache_dir = schema_cache_dir
+        self.schema_cache_ttl_hours = schema_cache_ttl_hours
+
+        # Initialize SchemaCache with new parameters
+        self._schema_cache_instance = SchemaCache(
+            cache_dir=self.schema_cache_dir,
+            local_schema_path=self.local_schema_path,
+            ttl_hours=self.schema_cache_ttl_hours
+        )
+        # Pass the SchemaCache instance to FilterValidator
+        self._filter_validator: FilterValidator = FilterValidator(schema_cache=self._schema_cache_instance)
 
         self.vn = _VNClient(self)
         self.release = _ReleaseClient(self)
@@ -301,74 +299,21 @@ class VNDB:
     def _get_session(self) -> aiohttp.ClientSession:
         if self._session_param is not None:
             if self._session_param.closed:
-                raise RuntimeError(
-                    "Externally provided aiohttp.ClientSession is closed."
-                )
+                raise RuntimeError("Externally provided aiohttp.ClientSession is closed.")
             return self._session_param
 
         if self._session_internal is None or self._session_internal.closed:
-            if self._session_owner:                # Configure TCPConnector with settings to improve SSL shutdown handling
-                connector = aiohttp.TCPConnector(
-                    enable_cleanup_closed=True,
-                    ttl_dns_cache=60,
-                    use_dns_cache=True,
-                    force_close=True,  # Force close connections instead of keeping them alive
-                    limit_per_host=10  # Limit concurrent connections per host
-                )
-                
-                # Set a more reasonable timeout for the entire session
-                timeout = aiohttp.ClientTimeout(
-                    total=30,  # Total timeout
-                    connect=10,  # Connection timeout
-                    sock_read=10  # Socket read timeout
-                )
-                
-                self._session_internal = aiohttp.ClientSession(
-                    connector=connector,
-                    timeout=timeout
-                )
-            else:                raise RuntimeError(
-                    "aiohttp.ClientSession not available. "
-                    "VNDB client was not provided a session and does not own one to create."
-                )
+            if self._session_owner:
+                connector = aiohttp.TCPConnector(enable_cleanup_closed=True)
+                self._session_internal = aiohttp.ClientSession(connector=connector)
+            else:
+                raise RuntimeError("aiohttp.ClientSession not available.")
         return self._session_internal
 
     async def close(self):
-        if (
-            self._session_internal is not None
-            and self._session_owner
-            and not self._session_internal.closed
-        ):
-            # Yield control to the event loop to allow pending operations
-            await asyncio.sleep(0)
-            
-            try:
-                # Close the session with a timeout to prevent hanging
-                await asyncio.wait_for(
-                    self._session_internal.close(), 
-                    timeout=2.0  # Reduced timeout for session close
-                )
-                
-                # Also close the underlying connector if available
-                if hasattr(self._session_internal, 'connector') and self._session_internal.connector:
-                    await asyncio.wait_for(
-                        self._session_internal.connector.close(),
-                        timeout=1.0  # Short timeout for connector close
-                    )
-                    
-            except asyncio.TimeoutError:
-                # If close times out, we can't do much more
-                # The session will eventually be cleaned up by the garbage collector
-                pass
-            except Exception:
-                # Ignore other exceptions during close (e.g., SSL errors)
-                # These are usually harmless cleanup issues
-                pass
-                
-            # Brief delay to allow final cleanup
-            await asyncio.sleep(0.05)
-
-    async def __aenter__(self):
+        if self._session_internal is not None and self._session_owner and not self._session_internal.closed:
+            await self._session_internal.close()
+            await asyncio.sleep(0.05) # Allow time for cleanup    async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -377,42 +322,24 @@ class VNDB:
     async def get_schema(self) -> dict:
         url = f"{self.base_url}/schema"
         session = self._get_session()
-        return await _fetch_api(
-            session=session, method="GET", url=url, token=self.api_token
-        )
+        return await _fetch_api(session=session, method="GET", url=url, token=self.api_token)
 
     async def get_stats(self) -> UserStats:
         url = f"{self.base_url}/stats"
         session = self._get_session()
-        data = await _fetch_api(
-            session=session, method="GET", url=url, token=self.api_token
-        )
+        data = await _fetch_api(session=session, method="GET", url=url, token=self.api_token)
         return from_dict(data_class=UserStats, data=data, config=dacite_config)
 
-    async def get_user(
-        self, q: Union[VNDBID, List[VNDBID]], fields: Optional[str] = None
-    ) -> Dict[str, Optional[User]]:
+    async def get_user(self, q: Union[VNDBID, List[VNDBID]], fields: Optional[str] = None) -> Dict[str, Optional[User]]:
         url = f"{self.base_url}/user"
         params: Dict[str, Any] = {"q": q}
         if fields:
             params["fields"] = fields
-
         session = self._get_session()
-        response_data = await _fetch_api(
-            session=session, method="GET", url=url, token=self.api_token, params=params
-        )
-
+        response_data = await _fetch_api(session=session, method="GET", url=url, token=self.api_token, params=params)
         parsed_response: Dict[str, Optional[User]] = {}
         for key, value_data in response_data.items():
-            if value_data:
-                try:
-                    parsed_response[key] = from_dict(
-                        data_class=User, data=value_data, config=dacite_config
-                    )
-                except Exception: # Catch parsing errors
-                    parsed_response[key] = None
-            else:
-                parsed_response[key] = None
+            parsed_response[key] = from_dict(data_class=User, data=value_data, config=dacite_config) if value_data else None
         return parsed_response
 
     async def get_authinfo(self) -> AuthInfo:
@@ -420,7 +347,34 @@ class VNDB:
             raise AuthenticationError("API token required for /authinfo endpoint.")
         url = f"{self.base_url}/authinfo"
         session = self._get_session()
-        response_data = await _fetch_api(
-            session=session, method="GET", url=url, token=self.api_token
-        )
+        response_data = await _fetch_api(session=session, method="GET", url=url, token=self.api_token)
         return from_dict(data_class=AuthInfo, data=response_data, config=dacite_config)
+    
+    def _get_filter_validator(self) -> FilterValidator:
+        """Returns the FilterValidator instance."""
+        # FilterValidator is now initialized in __init__
+        return self._filter_validator
+    
+    async def validate_filters(self, endpoint: str, filters: Union[List, str, None]) -> Dict[str, Any]:
+        """Validates filters against the schema for a specific endpoint."""
+        validator = self._get_filter_validator()
+        return await validator.validate_filters(endpoint, filters, self)
+    
+    async def get_available_fields(self, endpoint: str) -> List[str]:
+        """Get all available filterable fields for an endpoint."""
+        validator = self._get_filter_validator()
+        return await validator.get_available_fields(endpoint, self)
+    
+    async def list_endpoints(self) -> List[str]:
+        """Get all available API endpoints."""
+        validator = self._get_filter_validator()
+        return await validator.list_endpoints(self)
+    
+    def invalidate_schema_cache(self):
+        """Invalidates the schema cache, forcing a refresh on next validation or schema access."""
+        # The actual invalidation is handled by the SchemaCache instance
+        self._schema_cache_instance.invalidate_cache()
+
+    async def update_local_schema(self) -> Dict[str, Any]:
+        """Forces a download of the latest schema and updates the local schema file (if configured) or the cache."""
+        return await self._schema_cache_instance.update_local_schema_from_api(self)
