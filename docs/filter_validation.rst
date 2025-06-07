@@ -4,7 +4,7 @@ Filter Validation Guide
 The VeeDB library includes a comprehensive filter validation system that helps you validate filters against the VNDB API schema before making requests. This system automatically downloads and caches the schema, validates your filter expressions, and provides helpful suggestions when validation fails.
 
 Key Features
------------
+------------
 
 - **Automatic Schema Caching**: Downloads and caches the VNDB API schema locally with TTL support
 - **Filter Validation**: Validates filter expressions against available fields for each endpoint

@@ -70,7 +70,7 @@ For authenticated operations (like managing lists), you'll need an API token:
            # like user lists, etc.
 
 Getting an API Token
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 1. Go to https://vndb.org/u/tokens
 2. Create a new token with appropriate permissions
@@ -207,7 +207,7 @@ For testing and development, use sandbox mode:
            print(f"Sandbox stats: {stats.vn} VNs")
 
 Configuration Options
---------------------
+---------------------
 
 VeeDB supports various configuration options:
 

@@ -37,7 +37,7 @@ For development, clone the repository and install in editable mode:
    pip install -e .
 
 Development Installation
------------------------
+------------------------
 
 For development work, you'll want to install additional dependencies:
 
@@ -55,7 +55,7 @@ For development work, you'll want to install additional dependencies:
    pip install pytest pytest-asyncio
 
 Virtual Environment
-------------------
+-------------------
 
 It's recommended to use a virtual environment:
 
@@ -74,7 +74,7 @@ It's recommended to use a virtual environment:
    pip install veedb
 
 Verification
------------
+------------
 
 To verify your installation:
 
@@ -95,7 +95,7 @@ To verify your installation:
    asyncio.run(test())
 
 Troubleshooting
---------------
+---------------
 
 Common Issues
 ~~~~~~~~~~~~~

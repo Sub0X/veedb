@@ -4,11 +4,12 @@ Validation System
 VeeDB includes a comprehensive filter validation system that helps ensure your queries are correct before sending them to the API.
 
 Filter Validator
----------------
+----------------
 
 .. autoclass:: veedb.FilterValidator
    :members:
    :show-inheritance:
+   :no-index:
    
    The main validation class that checks filters against the VNDB API schema.
    
@@ -31,11 +32,12 @@ Filter Validator
           print(f"Suggestions: {result['suggestions']}")
 
 Schema Cache
------------
+------------
 
 .. autoclass:: veedb.SchemaCache
    :members:
    :show-inheritance:
+   :no-index:
    
    Manages downloading, caching, and retrieval of the VNDB API schema.
    
@@ -56,12 +58,13 @@ Schema Cache
       )
 
 Validation Methods
------------------
+------------------
 
 Filter Validation
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. automethod:: veedb.FilterValidator.validate_filters
+   :no-index:
 
    Validates a filter expression against the API schema.
    
@@ -94,9 +97,10 @@ Filter Validation
               print(f"Suggestions: {', '.join(result['suggestions'])}")
 
 Field Suggestions
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. automethod:: veedb.FilterValidator.suggest_fields
+   :no-index:
 
    Provides suggestions for misspelled or invalid field names.
    
@@ -118,9 +122,10 @@ Field Suggestions
       # Returns: ["title"]
 
 Available Fields
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. automethod:: veedb.FilterValidator.get_available_fields
+   :no-index:
 
    Get all available fields for an endpoint.
    
@@ -141,9 +146,10 @@ Available Fields
       print(f"Available VN fields: {fields}")
 
 Endpoint Discovery
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. automethod:: veedb.FilterValidator.list_endpoints
+   :no-index:
 
    Get all available API endpoints.
    
@@ -163,12 +169,13 @@ Endpoint Discovery
       print(f"Available endpoints: {endpoints}")
 
 Schema Cache Methods
--------------------
+--------------------
 
 Cache Status
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
 .. automethod:: veedb.SchemaCache.is_cached
+   :no-index:
 
    Check if the schema is cached locally.
    
@@ -177,6 +184,7 @@ Cache Status
    - ``bool``: True if schema file exists or local schema path is configured
 
 .. automethod:: veedb.SchemaCache.get_cache_age
+   :no-index:
 
    Get the age of the cached schema in seconds.
    
@@ -185,6 +193,7 @@ Cache Status
    - ``float``: Age in seconds, or 0.0 for local schema, inf if not cached
 
 .. automethod:: veedb.SchemaCache.is_cache_expired
+   :no-index:
 
    Check if the cached schema has expired based on TTL.
    
@@ -193,13 +202,15 @@ Cache Status
    - ``bool``: True if cache has expired (local schemas never expire)
 
 Cache Management
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. automethod:: veedb.SchemaCache.invalidate_cache
+   :no-index:
 
    Invalidate the cached schema, forcing a refresh on next access.
 
 .. automethod:: veedb.SchemaCache.save_schema
+   :no-index:
 
    Save schema data to cache or local file.
    
@@ -209,6 +220,7 @@ Cache Management
    - ``to_local_path`` (bool): Whether to save to local schema path (default: False)
 
 .. automethod:: veedb.SchemaCache.load_schema
+   :no-index:
 
    Load schema from cache or local file.
    
@@ -217,6 +229,7 @@ Cache Management
    - ``Optional[Dict[str, Any]]``: Loaded schema data or None if not found
 
 .. automethod:: veedb.SchemaCache.get_schema
+   :no-index:
 
    Get schema, downloading if necessary.
    
@@ -229,6 +242,7 @@ Cache Management
    - ``Dict[str, Any]``: Schema data
 
 .. automethod:: veedb.SchemaCache.update_local_schema_from_api
+   :no-index:
 
    Force update of schema from API.
    
@@ -241,10 +255,10 @@ Cache Management
    - ``Dict[str, Any]``: Updated schema data
 
 Validation Examples
-------------------
+-------------------
 
 Basic Validation
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -288,7 +302,7 @@ Complex Filter Validation
                response = await client.vn.query(query)
 
 Auto-Correction
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -309,7 +323,7 @@ Auto-Correction
                    print("✓ Corrected filter is valid")
 
 Field Discovery
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -330,7 +344,7 @@ Field Discovery
            print(f"Available endpoints: {endpoints}")
 
 Custom Validator Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -357,19 +371,19 @@ Custom Validator Configuration
            print(f"Cache expired: {cache.is_cache_expired()}")
 
 Error Types
-----------
+-----------
 
 The validation system can return various types of errors:
 
 Field Errors
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
 - **Unknown field**: Field name doesn't exist in the schema
 - **Invalid nested field**: Nested field path is incorrect
 - **Type mismatch**: Filter value type doesn't match field type
 
 Syntax Errors
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 - **Invalid filter structure**: Malformed filter expression
 - **Missing operator**: Filter missing comparison operator
@@ -382,7 +396,7 @@ Usage Errors
 - **Permission required**: Field requires authentication
 
 Suggestions Algorithm
---------------------
+---------------------
 
 The suggestion system uses fuzzy string matching to provide helpful corrections:
 
@@ -405,7 +419,7 @@ The suggestion system uses fuzzy string matching to provide helpful corrections:
    # Suggestions: ["tags.name"] (nested field correction)
 
 Best Practices
--------------
+--------------
 
 1. **Always Validate**: Validate filters before making API calls
 2. **Handle Suggestions**: Implement auto-correction using suggestions
@@ -414,7 +428,7 @@ Best Practices
 5. **Use Nested Fields**: Take advantage of nested field validation
 
 Integration Tips
----------------
+----------------
 
 **Form Validation**: Use in web forms to validate user input
 **Auto-Complete**: Build auto-complete using available fields

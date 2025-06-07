@@ -38,7 +38,7 @@ Simple Visual Novel Search
    asyncio.run(search_visual_novels())
 
 Character Search
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -61,7 +61,7 @@ Character Search
                print()
 
 Release Information
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -83,7 +83,7 @@ Release Information
                print()
 
 Advanced Filtering
------------------
+------------------
 
 Complex Filter Expressions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -149,7 +149,7 @@ Nested Field Queries
                print()
 
 Filter Validation
-----------------
+-----------------
 
 Validating Filters Before Use
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -180,7 +180,7 @@ Validating Filters Before Use
                print()
 
 Getting Available Fields
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -203,7 +203,7 @@ Getting Available Fields
                print()
 
 Auto-correction Example
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -247,10 +247,10 @@ Auto-correction Example
                    print(f"  {vn.title}: {vn.rating}")
 
 Authentication Examples
-----------------------
+-----------------------
 
 User List Management
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -293,7 +293,7 @@ User List Management
            # print("Added Ever17 to your list!")
 
 Release List Example
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -328,7 +328,7 @@ Release List Example
                    print(f"  {release_title}")
 
 Error Handling Examples
-----------------------
+-----------------------
 
 Comprehensive Error Handling
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -372,7 +372,7 @@ Comprehensive Error Handling
                print(f"General API error: {e}")
 
 Retry Logic Example
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -402,10 +402,10 @@ Retry Logic Example
                    raise
 
 Performance Examples
--------------------
+--------------------
 
 Batch Processing
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -443,7 +443,7 @@ Batch Processing
            print(f"Processed {len(detailed_vns)} VNs in batches")
 
 Caching Results
-~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -498,10 +498,10 @@ Caching Results
            print(f"VN: {vn_details['title']}")
 
 Configuration Examples
----------------------
+----------------------
 
 Custom Configuration
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -523,7 +523,7 @@ Custom Configuration
                await client.update_local_schema()
 
 Running the Examples
--------------------
+--------------------
 
 To run these examples:
 

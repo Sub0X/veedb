@@ -48,13 +48,13 @@ def get_doc_stats():
 def generate_badges():
     """Generate badge URLs for documentation"""
     stats = get_doc_stats()
-      badges = {
-        "docs_status": f"https://img.shields.io/badge/docs-{stats['build_status']}-{'green' if stats['build_status'] == 'success' else 'red'}",
-        "rst_files": f"https://img.shields.io/badge/RST%20files-{stats['rst_files']}-blue",
-        "api_docs": f"https://img.shields.io/badge/API%20docs-{stats['api_files']}-blue",
-        "lines": f"https://img.shields.io/badge/doc%20lines-{stats['total_lines']}-blue",
-        "readthedocs": "https://img.shields.io/readthedocs/veedb?label=Read%20the%20Docs",
-        "rtd_version": "https://img.shields.io/readthedocs/veedb/latest?label=latest"
+    badges = {
+    "docs_status": f"https://img.shields.io/badge/docs-{stats['build_status']}-{'green' if stats['build_status'] == 'success' else 'red'}",
+    "rst_files": f"https://img.shields.io/badge/RST%20files-{stats['rst_files']}-blue",
+    "api_docs": f"https://img.shields.io/badge/API%20docs-{stats['api_files']}-blue",
+    "lines": f"https://img.shields.io/badge/doc%20lines-{stats['total_lines']}-blue",
+    "readthedocs": "https://img.shields.io/readthedocs/veedb?label=Read%20the%20Docs",
+    "rtd_version": "https://img.shields.io/readthedocs/veedb/latest?label=latest"
     }
     
     return badges, stats

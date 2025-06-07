@@ -55,7 +55,7 @@ Then use it in your code:
            print(f"Authenticated as: {auth_info.username}")
 
 Direct Token Usage
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 For testing or simple scripts, you can pass the token directly:
 
@@ -95,7 +95,7 @@ For applications, consider using configuration files:
            pass
 
 Authentication Verification
---------------------------
+---------------------------
 
 Always verify authentication before performing authenticated operations:
 
@@ -118,10 +118,10 @@ Always verify authentication before performing authenticated operations:
            return False
 
 Authenticated Operations
------------------------
+------------------------
 
 User Information
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -142,7 +142,7 @@ User Information
            print(f"Length votes: {user.lengthvotes}")
 
 User List Management
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -171,7 +171,7 @@ User List Management
            await client.ulist.delete("v17")
 
 Release List Management
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -233,7 +233,7 @@ Token Security Best Practices
 6. **Logging**: Avoid logging tokens in application logs
 
 Example: Secure Token Management
--------------------------------
+--------------------------------
 
 .. code-block:: python
 
@@ -284,7 +284,7 @@ Example: Secure Token Management
            print("Failed to authenticate with VNDB")
 
 Troubleshooting
---------------
+---------------
 
 Common authentication issues and solutions:
 

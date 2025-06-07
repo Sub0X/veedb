@@ -91,6 +91,7 @@ Exception Classes
 .. automodule:: veedb.exceptions
    :members:
    :show-inheritance:
+   :no-index:
 
 Type Definitions
 ----------------
@@ -101,6 +102,7 @@ Common Types
 .. automodule:: veedb.apitypes.common
    :members:
    :show-inheritance:
+   :no-index:
 
 Request Types
 ~~~~~~~~~~~~~
@@ -108,6 +110,7 @@ Request Types
 .. automodule:: veedb.apitypes.requests
    :members:
    :show-inheritance:
+   :no-index:
 
 Entity Types
 ~~~~~~~~~~~~
@@ -118,6 +121,7 @@ Visual Novel Entities
 .. automodule:: veedb.apitypes.entities.vn
    :members:
    :show-inheritance:
+   :no-index:
 
 Character Entities
 ^^^^^^^^^^^^^^^^^^
@@ -125,6 +129,7 @@ Character Entities
 .. automodule:: veedb.apitypes.entities.character
    :members:
    :show-inheritance:
+   :no-index:
 
 Producer Entities
 ^^^^^^^^^^^^^^^^^
@@ -132,6 +137,7 @@ Producer Entities
 .. automodule:: veedb.apitypes.entities.producer
    :members:
    :show-inheritance:
+   :no-index:
 
 Release Entities
 ^^^^^^^^^^^^^^^^
@@ -139,6 +145,7 @@ Release Entities
 .. automodule:: veedb.apitypes.entities.release
    :members:
    :show-inheritance:
+   :no-index:
 
 Staff Entities
 ^^^^^^^^^^^^^^
@@ -146,6 +153,7 @@ Staff Entities
 .. automodule:: veedb.apitypes.entities.staff
    :members:
    :show-inheritance:
+   :no-index:
 
 Tag Entities
 ^^^^^^^^^^^^
@@ -153,6 +161,7 @@ Tag Entities
 .. automodule:: veedb.apitypes.entities.tag
    :members:
    :show-inheritance:
+   :no-index:
 
 Trait Entities
 ^^^^^^^^^^^^^^
@@ -160,6 +169,7 @@ Trait Entities
 .. automodule:: veedb.apitypes.entities.trait
    :members:
    :show-inheritance:
+   :no-index:
 
 Quote Entities
 ^^^^^^^^^^^^^^
@@ -167,6 +177,7 @@ Quote Entities
 .. automodule:: veedb.apitypes.entities.quote
    :members:
    :show-inheritance:
+   :no-index:
 
 User List Entities
 ^^^^^^^^^^^^^^^^^^
@@ -174,6 +185,7 @@ User List Entities
 .. automodule:: veedb.apitypes.entities.ulist
    :members:
    :show-inheritance:
+   :no-index:
 
 User Entities
 ^^^^^^^^^^^^^
@@ -181,3 +193,4 @@ User Entities
 .. automodule:: veedb.apitypes.entities.user
    :members:
    :show-inheritance:
+   :no-index:

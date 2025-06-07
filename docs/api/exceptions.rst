@@ -19,11 +19,12 @@ All VeeDB exceptions inherit from the base ``VNDBAPIError`` class:
    └── TooMuchDataSelectedError
 
 Base Exception
--------------
+--------------
 
 .. autoclass:: veedb.exceptions.VNDBAPIError
    :members:
    :show-inheritance:
+   :no-index:
    
    Base exception class for all VNDB API related errors.
    
@@ -45,14 +46,15 @@ Base Exception
               print(f"Status Code: {e.status_code}")
 
 Specific Exceptions
-------------------
+-------------------
 
 Authentication Errors
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.exceptions.AuthenticationError
    :members:
    :show-inheritance:
+   :no-index:
    
    Raised when authentication fails or is required but not provided.
    
@@ -73,11 +75,12 @@ Authentication Errors
           print("Invalid or missing API token")
 
 Rate Limiting Errors
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.exceptions.RateLimitError
    :members:
    :show-inheritance:
+   :no-index:
    
    Raised when API rate limits are exceeded.
    
@@ -104,11 +107,12 @@ Rate Limiting Errors
                       raise
 
 Invalid Request Errors
-~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.exceptions.InvalidRequestError
    :members:
    :show-inheritance:
+   :no-index:
    
    Raised when the request is malformed or contains invalid data.
    
@@ -135,11 +139,12 @@ Invalid Request Errors
               print(f"Validation errors: {result['errors']}")
 
 Not Found Errors
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.exceptions.NotFoundError
    :members:
    :show-inheritance:
+   :no-index:
    
    Raised when a requested resource is not found.
    
@@ -167,6 +172,7 @@ Server Errors
 .. autoclass:: veedb.exceptions.ServerError
    :members:
    :show-inheritance:
+   :no-index:
    
    Raised when the VNDB server encounters an internal error.
    
@@ -185,11 +191,12 @@ Server Errors
           # Implement retry logic with backoff
 
 Too Much Data Errors
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.exceptions.TooMuchDataSelectedError
    :members:
    :show-inheritance:
+   :no-index:
    
    Raised when a query selects too much data and exceeds API limits.
    
@@ -224,7 +231,7 @@ Error Handling Patterns
 -----------------------
 
 Basic Error Handling
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -241,7 +248,7 @@ Basic Error Handling
            return []
 
 Specific Error Handling
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -287,7 +294,7 @@ Specific Error Handling
            return None
 
 Retry Logic with Exponential Backoff
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -330,7 +337,7 @@ Retry Logic with Exponential Backoff
                raise
 
 Validation-First Approach
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -361,7 +368,7 @@ Validation-First Approach
            raise
 
 Graceful Degradation
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -412,7 +419,7 @@ Graceful Degradation
            return await client.vn.query(exact_query)
 
 Error Context Preservation
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -450,7 +457,7 @@ Error Context Preservation
            )
 
 Logging Best Practices
----------------------
+----------------------
 
 .. code-block:: python
 
@@ -481,7 +488,7 @@ Logging Best Practices
            raise
 
 Testing Error Conditions
------------------------
+------------------------
 
 .. code-block:: python
 
@@ -497,12 +504,11 @@ Testing Error Conditions
 
    @pytest.mark.asyncio
    async def test_authentication_required():
-       async with VNDB() as client:  # No API token
-           with pytest.raises(AuthenticationError):
+       async with VNDB() as client:  # No API token           with pytest.raises(AuthenticationError):
                await client.get_authinfo()
 
 Best Practices
--------------
+--------------
 
 1. **Always Handle Exceptions**: Never let VNDB exceptions bubble up unhandled
 2. **Use Specific Exceptions**: Catch specific exception types rather than the base class

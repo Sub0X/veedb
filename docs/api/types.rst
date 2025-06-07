@@ -4,14 +4,15 @@ Type Definitions
 VeeDB provides comprehensive type definitions for all VNDB API entities and request/response structures.
 
 Common Types
------------
+------------
 
 Query and Response Types
-~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.QueryRequest
    :members:
    :show-inheritance:
+   :no-index:
    
    Request structure for querying VNDB endpoints.
    
@@ -42,72 +43,82 @@ Query and Response Types
 .. autoclass:: veedb.apitypes.common.QueryResponse
    :members:
    :show-inheritance:
+   :no-index:
    
    Response structure from VNDB query endpoints.
 
 Identifier Types
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.VNDBID
    :members:
    :show-inheritance:
+   :no-index:
    
    Type alias for VNDB entity IDs (strings starting with specific prefixes).
 
 .. autoclass:: veedb.ReleaseDate
    :members:
    :show-inheritance:
+   :no-index:
    
    Type for release dates in VNDB format.
 
 Enumeration Types
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.LanguageEnum
    :members:
    :show-inheritance:
+   :no-index:
    
    Enumeration of supported languages.
 
 .. autoclass:: veedb.PlatformEnum
    :members:
    :show-inheritance:
+   :no-index:
    
    Enumeration of supported platforms.
 
 .. autoclass:: veedb.StaffRoleEnum
    :members:
    :show-inheritance:
+   :no-index:
    
    Enumeration of staff roles.
 
 .. autoclass:: veedb.TagCategoryEnum
    :members:
    :show-inheritance:
+   :no-index:
    
    Enumeration of tag categories.
 
 .. autoclass:: veedb.ProducerTypeEnum
    :members:
    :show-inheritance:
+   :no-index:
    
    Enumeration of producer types.
 
 .. autoclass:: veedb.DevStatusEnum
    :members:
    :show-inheritance:
+   :no-index:
    
    Enumeration of development status values.
 
 Request Types
-------------
+-------------
 
 List Update Payloads
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~
 
 .. autoclass:: veedb.UlistUpdatePayload
    :members:
    :show-inheritance:
+   :no-index:
    
    Payload for updating user visual novel lists.
    
@@ -134,6 +145,7 @@ List Update Payloads
 .. autoclass:: veedb.RlistUpdatePayload
    :members:
    :show-inheritance:
+   :no-index:
    
    Payload for updating user release lists.
    
@@ -143,10 +155,10 @@ List Update Payloads
    - ``status`` (Optional[str]): Release status
 
 Entity Types
------------
+------------
 
 Visual Novel Entities
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.vn
    :members:
@@ -164,7 +176,7 @@ Visual Novel Entities
    - ``VNLength``: VN length statistics
 
 Character Entities
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.character
    :members:
@@ -181,7 +193,7 @@ Character Entities
    - ``CharacterVN``: Character's VN appearances
 
 Producer Entities
-~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.producer
    :members:
@@ -196,7 +208,7 @@ Producer Entities
    - ``ProducerRelation``: Producer relationship information
 
 Release Entities
-~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.release
    :members:
@@ -212,7 +224,7 @@ Release Entities
    - ``ReleaseProducer``: Release producer information
 
 Staff Entities
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.staff
    :members:
@@ -227,7 +239,7 @@ Staff Entities
    - ``StaffAlias``: Staff alias information
 
 Tag Entities
-~~~~~~~~~~~
+~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.tag
    :members:
@@ -241,7 +253,7 @@ Tag Entities
    - ``TagQueryItem``: Tag data from queries
 
 Trait Entities
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.trait
    :members:
@@ -255,7 +267,7 @@ Trait Entities
    - ``TraitQueryItem``: Trait data from queries
 
 Quote Entities
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.quote
    :members:
@@ -269,7 +281,7 @@ Quote Entities
    - ``QuoteQueryItem``: Quote data from queries
 
 User List Entities
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.ulist
    :members:
@@ -284,7 +296,7 @@ User List Entities
    - ``UlistLabels``: User list label information
 
 User Entities
-~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 .. automodule:: veedb.apitypes.entities.user
    :members:
@@ -300,10 +312,10 @@ User Entities
    - ``Stats``: Database statistics
 
 Type Usage Examples
-------------------
+-------------------
 
 Creating Query Requests
-~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -333,7 +345,7 @@ Creating Query Requests
    )
 
 Working with Response Data
-~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -355,7 +367,7 @@ Working with Response Data
                print(f"Developer: {dev.name}")
 
 Updating User Lists
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -375,7 +387,7 @@ Updating User Lists
    await client.ulist.update("v17", payload)
 
 Working with Enums
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -394,7 +406,7 @@ Working with Enums
    response = await client.release.query(query)
 
 Type Annotations
----------------
+----------------
 
 VeeDB is fully typed and supports type checking with mypy:
 
@@ -425,7 +437,7 @@ VeeDB is fully typed and supports type checking with mypy:
                print(f"{vn.title}: {vn.rating}")
 
 Optional Fields
---------------
+---------------
 
 Many entity fields are optional and may be ``None``:
 
@@ -450,7 +462,7 @@ Many entity fields are optional and may be ``None``:
                print(f"Cover image: {vn.image.url}")
 
 Union Types
-----------
+-----------
 
 Some fields accept multiple types:
 
@@ -470,7 +482,7 @@ Some fields accept multiple types:
    list_filter = create_filter(["v17", "v18"])
 
 Generic Types
-------------
+-------------
 
 VeeDB uses generics for type safety:
 
@@ -488,7 +500,7 @@ VeeDB uses generics for type safety:
    char_client: _BaseEntityClient[Character, CharacterQueryItem] = client.character
 
 Dataclass Features
------------------
+------------------
 
 All entity types are dataclasses with additional features:
 
@@ -513,7 +525,7 @@ All entity types are dataclasses with additional features:
    )
 
 Type Validation
---------------
+---------------
 
 VeeDB uses dacite for runtime type validation:
 
@@ -526,7 +538,7 @@ VeeDB uses dacite for runtime type validation:
    # This ensures type safety at runtime
 
 Best Practices
--------------
+--------------
 
 1. **Use Type Hints**: Always use type hints for better IDE support
 2. **Check Optional Fields**: Always check if optional fields are None
@@ -537,7 +549,7 @@ Best Practices
 7. **Runtime Validation**: Trust that VeeDB validates API responses
 
 IDE Support
-----------
+-----------
 
 VeeDB provides excellent IDE support through:
 
