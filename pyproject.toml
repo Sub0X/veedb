@@ -40,8 +40,9 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/Sub0X/veedb"
 Repository = "https://github.com/Sub0X/veedb"
-Documentation = "https://veedb.readthedocs.io"
+Documentation = "https://veedb.readthedocs.io/en/latest/"
 "Bug Tracker" = "https://github.com/Sub0X/veedb/issues"
+Changelog = "https://veedb.readthedocs.io/en/latest/changelog.html"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

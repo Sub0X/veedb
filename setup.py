@@ -22,10 +22,15 @@ setup(
     name="veedb",
     version=get_version(),
     author="Sub01",
-    author_email="Sub01@subsoft.dev",    description="An asynchronous Python wrapper for the VNDB API (Kana).",
-    long_description=get_long_description(),
+    author_email="Sub01@subsoft.dev",    description="An asynchronous Python wrapper for the VNDB API (Kana).",    long_description=get_long_description(),
     long_description_content_type="text/markdown",
     url="https://github.com/Sub0X/veedb",
+    project_urls={
+        "Documentation": "https://veedb.readthedocs.io/en/latest/",
+        "Source Code": "https://github.com/Sub0X/veedb",
+        "Bug Tracker": "https://github.com/Sub0X/veedb/issues",
+        "Changelog": "https://veedb.readthedocs.io/en/latest/changelog.html",
+    },
     
     package_dir={"": "src"},
     packages=find_packages(where="src"),
