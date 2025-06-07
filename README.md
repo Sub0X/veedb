@@ -4,6 +4,9 @@ An unofficial asynchronous Python wrapper for the [VNDB.org API v2 (Kana)](https
 
 This library provides a convenient way to interact with the VNDB API, allowing you to query visual novel data, manage user lists, and more, all asynchronously with comprehensive type safety and filter validation.
 
+[![Documentation Status](https://readthedocs.org/projects/veedb/badge/?version=latest)](https://veedb.readthedocs.io/en/latest/?badge=latest)
+[![Documentation](https://img.shields.io/badge/docs-readthedocs-blue.svg?logo=readthedocs&logoColor=white)](https://veedb.readthedocs.io/en/latest/index.html)
+
 ## Features
 
 - **Asynchronous API calls** using `aiohttp`
@@ -37,6 +40,22 @@ pip install git+https://github.com/Sub0X/veedb.git
 - Python 3.8+
 - `aiohttp`
 - `dacite`
+
+## Documentation
+
+📚 **Complete documentation is available at:** https://veedb.readthedocs.io/en/latest/index.html
+
+[![Read the Docs](https://img.shields.io/badge/Read%20the%20Docs-Documentation-blue?style=for-the-badge&logo=readthedocs&logoColor=white)](https://veedb.readthedocs.io/en/latest/index.html)
+[![API Reference](https://img.shields.io/badge/API-Reference-green?style=for-the-badge&logo=gitbook&logoColor=white)](https://veedb.readthedocs.io/en/latest/api/validation.html)
+[![Quick Start](https://img.shields.io/badge/Quick-Start-orange?style=for-the-badge&logo=rocket&logoColor=white)](https://veedb.readthedocs.io/en/latest/quickstart.html)
+
+The documentation includes:
+- **Installation Guide** - Setup instructions and requirements
+- **Quick Start Tutorial** - Get up and running in minutes
+- **Authentication Guide** - API token setup and security best practices
+- **Complete API Reference** - All classes, methods, and types
+- **Examples & Use Cases** - Real-world usage patterns
+- **Filter Validation** - Advanced querying and validation features
 
 ## Quick Start
 
@@ -230,9 +249,13 @@ except VNDBAPIError as e:
     print(f"Error managing ulist: {e}")
 ```
 
-## API Documentation
+## Documentation
 
-For detailed information on filters, fields, and API behavior, please refer to the official [VNDB API v2 (Kana) Documentation](https://vndb.org/d11).
+📚 **For comprehensive VeeDB documentation, visit:**
+
+[![VeeDB Documentation](https://img.shields.io/badge/VeeDB-Documentation-blue?style=for-the-badge&logo=readthedocs&logoColor=white)](https://veedb.readthedocs.io/en/latest/index.html)
+
+For detailed information on VNDB API filters, fields, and behavior, please refer to the official [VNDB API v2 (Kana) Documentation](https://vndb.org/d11).
 
 ## Contributing
 
