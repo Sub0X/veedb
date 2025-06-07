@@ -2,20 +2,24 @@
 
 An unofficial asynchronous Python wrapper for the [VNDB.org API v2 (Kana)](https://vndb.org/d11). "Vee" for the v-sign pose and starting letter for VNDB, "DB" for database.
 
-This library provides a convenient way to interact with the VNDB API, allowing you to query visual novel data, manage user lists, and more, all asynchronously.
+This library provides a convenient way to interact with the VNDB API, allowing you to query visual novel data, manage user lists, and more, all asynchronously with comprehensive type safety and filter validation.
 
 ## Features
 
-- Asynchronous API calls using `aiohttp`.
-- Data parsing into Python dataclasses using `dacite`.
-- Coverage for most VNDB API v2 (Kana) endpoints:
-    - Simple GET requests: `/schema`, `/stats`, `/user`, `/authinfo`
-    - Database querying (POST): `/vn`, `/release`, `/producer`, `/character`, `/staff`, `/tag`, `/trait`, `/quote`
-    - List management: `/ulist` (query, labels), `/rlist`, including PATCH and DELETE operations (requires API token with `listwrite`).
-- Helper for constructing complex filter queries.
-- Custom exceptions for API errors.
-- Support for API token authentication.
-- Optional sandbox mode for testing.
+- **Asynchronous API calls** using `aiohttp`
+- **Data parsing** into Python dataclasses using `dacite`
+- **Comprehensive filter validation** with schema caching and auto-suggestions
+- **Complete type safety** with full type annotations
+- **Coverage for all VNDB API v2 endpoints**:
+  - Simple GET requests: `/schema`, `/stats`, `/user`, `/authinfo`
+  - Database querying (POST): `/vn`, `/release`, `/producer`, `/character`, `/staff`, `/tag`, `/trait`, `/quote`
+  - List management: `/ulist` (query, labels), `/rlist`, including PATCH and DELETE operations
+- **Intelligent query helpers** for constructing complex filter queries
+- **Custom exceptions** for API errors with detailed error handling
+- **API token authentication** support
+- **Optional sandbox mode** for testing
+- **Schema caching** with TTL support for optimal performance
+- **Field suggestions** for misspelled or invalid field names
 
 ## Installation
 
@@ -23,12 +27,90 @@ This library provides a convenient way to interact with the VNDB API, allowing y
 pip install veedb
 ```
 
-Alternatively, you can install directly from the repository (once you create it):
+Alternatively, install directly from the repository:
 ```bash
 pip install git+https://github.com/Sub0X/veedb.git
 ```
 
 ## Requirements
+
+- Python 3.8+
+- `aiohttp`
+- `dacite`
+
+## Quick Start
+
+### Basic Usage
+
+```python
+import asyncio
+from veedb import VNDB, QueryRequest
+
+async def main():
+    async with VNDB() as client:
+        # Get database statistics
+        stats = await client.get_stats()
+        print(f"Total VNs: {stats.vn}")
+
+        # Query for visual novels
+        query = QueryRequest(
+            filters=["title", "~", "Fate"],
+            fields="id, title, rating, released",
+            sort="rating",
+            reverse=True,
+            results=5
+        )
+        
+        response = await client.vn.query(query)
+        
+        for vn in response.results:
+            print(f"{vn.title} ({vn.released}): {vn.rating}")
+
+asyncio.run(main())
+```
+
+### With Authentication
+
+```python
+import os
+from veedb import VNDB
+
+async def authenticated_example():
+    api_token = os.environ.get("VNDB_API_TOKEN")
+    
+    async with VNDB(api_token=api_token) as client:
+        # Get user info
+        auth_info = await client.get_authinfo()
+        print(f"Logged in as: {auth_info.username}")
+        
+        # Access user lists and other authenticated features
+        # ...
+
+asyncio.run(authenticated_example())
+```
+
+### Filter Validation
+
+One of VeeDB's key features is comprehensive filter validation:
+
+```python
+async def validation_example():
+    async with VNDB() as client:
+        # Validate filters before using them
+        result = await client.validate_filters("/vn", ["title", "=", "Test"])
+        
+        if result['valid']:
+            print("Filter is valid!")
+        else:
+            print(f"Errors: {result['errors']}")
+            print(f"Suggestions: {result['suggestions']}")
+        
+        # Get available fields for an endpoint
+        fields = await client.get_available_fields("/vn")
+        print(f"Available VN fields: {fields[:10]}")
+
+asyncio.run(validation_example())
+```
 
 - Python 3.8+
 - `aiohttp`
