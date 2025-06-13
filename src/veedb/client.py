@@ -263,7 +263,7 @@ class VNDB:
         session: Optional[aiohttp.ClientSession] = None,
         local_schema_path: Optional[str] = None, 
         schema_cache_dir: str = ".veedb_cache", 
-        schema_cache_ttl_hours: float = 24.0,
+        schema_cache_ttl_hours: float = 15 * 24,  # Default to 15 days
     ):
         self.api_token = api_token
         self.base_url = SANDBOX_URL if use_sandbox else BASE_URL
@@ -322,9 +322,17 @@ class VNDB:
         await self.close()
 
     async def get_schema(self) -> dict:
-        url = f"{self.base_url}/schema"
-        session = self._get_session()
-        return await _fetch_api(session=session, method="GET", url=url, token=self.api_token)
+        """
+        Get the VNDB API schema, using cache if available and not older than configured TTL.
+        Downloads and caches the schema if cache doesn't exist or is expired.
+        Uses the same schema cache as the filter validation system.
+        """
+        return await self._schema_cache_instance.get_schema(self)
+
+    async def get_enums(self) -> Dict[str, Any]:
+        """Get enum definitions from the VNDB API schema (uses shared schema cache)."""
+        schema = await self.get_schema()
+        return schema.get("enums", {})
 
     async def get_stats(self) -> UserStats:
         url = f"{self.base_url}/stats"
