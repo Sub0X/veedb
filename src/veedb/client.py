@@ -313,7 +313,9 @@ class VNDB:
     async def close(self):
         if self._session_internal is not None and self._session_owner and not self._session_internal.closed:
             await self._session_internal.close()
-            await asyncio.sleep(0.05) # Allow time for cleanup    async def __aenter__(self):
+            await asyncio.sleep(0.05)  # Allow time for cleanup
+
+    async def __aenter__(self):
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):

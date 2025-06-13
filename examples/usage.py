@@ -10,7 +10,7 @@ async def main():
     api_token = os.environ.get("VNDB_API_TOKEN") # Keep env var name or change if you prefer
 
     # Using sandbox for this example, set use_sandbox=False for the real API
-    async with VNDB(api_token=api_token, use_sandbox=True) as vndb: # VNDB class name remains
+    async with VNDB(api_token=api_token, use_sandbox=False) as vndb:
         try:
             print("Fetching VNDB Stats:")
             stats = await vndb.get_stats()
