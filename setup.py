@@ -8,7 +8,7 @@ def get_version():
         with open(version_file, 'r', encoding='utf-8') as f:
             return f.read().strip()
     except FileNotFoundError:
-        return "0.1.0"  # fallback version
+        return "0.1.1"  # fallback version
 
 def get_long_description():
     """Read the long description from README.md"""
