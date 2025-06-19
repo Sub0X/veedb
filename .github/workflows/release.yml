@@ -1,43 +1,119 @@
-name: Upload Python Package to PyPI
+name: CI - Auto-release & upload to PyPI
 
 on:
+  push:
+    branches: [main]          # bump version & create Release
   release:
-    types: [published]
+    types: [published]        # build & upload to PyPI
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
+# ──────────────────────────────────────
+# 1. Job A: bump version & make Release
+# ──────────────────────────────────────
+  auto-release:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with: { fetch-depth: 0 }
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.6.0
+        with: { python-version: '3.x' }
+
+      # Read current version (default 0.0.0 if file missing)
+      - name: Get current version
+        id: ver
+        run: |
+          cur=$(cat src/veedb/VERSION 2>/dev/null || echo "0.0.0")
+          echo "current=$cur" >> "$GITHUB_OUTPUT"
+
+      # Bump patch (1.2.3 ➜ 1.2.4)
+      - name: Bump patch version
+        id: bump
+        run: |
+          IFS='.' read -r MAJ MIN PAT <<< "${{ steps.ver.outputs.current }}"
+          PAT=$((PAT + 1))
+          NEW="$MAJ.$MIN.$PAT"
+          echo "$NEW" > src/veedb/VERSION
+          echo "new=$NEW" >> "$GITHUB_OUTPUT"
+
+      # Commit VERSION bump, tag & push
+      - name: Commit & tag
+        env: 
+          NEW_VERSION: ${{ steps.bump.outputs.new }}
+        run: |
+          git config user.name  "github-actions"
+          git config user.email "github-actions@github.com"
+          git add src/veedb/VERSION
+          git commit -m "chore: bump version to v$NEW_VERSION [skip ci]" || true
+          git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
+          git push origin HEAD
+          git push origin "v$NEW_VERSION"
+
+      # ---------------------------
+      # Generate markdown changelog
+      # ---------------------------
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Find previous tag (ignore errors if first release)
+          prev=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -z "$prev" ]; then
+            range="HEAD"
+          else
+            range="$prev..HEAD"
+          fi
+
+          # Collect commit messages *except* the autobump commit
+          git log $range --pretty=format:"- %s (%h)" --invert-grep --grep "bump version" > CHANGELOG_GH_ACTION.md
+
+          # Fallback message if no commits make it through the filter
+          if [ ! -s CHANGELOG_GH_ACTION.md ]; then
+            echo "- Version bump only" > CHANGELOG_GH_ACTION.md
+          fi
+
+          echo "body_path=CHANGELOG_GH_ACTION.md" >> "$GITHUB_OUTPUT"
+
+      # Create GitHub Release with the changelog as body
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: v${{ steps.bump.outputs.new }}
+          body_path: ${{ steps.changelog.outputs.body_path }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# ────────────────────────────────────────
+# 2. Job B: build & publish when Release fires
+# ────────────────────────────────────────
   deploy:
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     environment: pypi
+
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2  # exact tagged commit
 
-    - name: Update VERSION file
-      run: |
-        echo "${{ github.event.release.tag_name }}" > src/veedb/VERSION
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add src/veedb/VERSION
-        git commit -m "Update version to ${{ github.event.release.tag_name }}" || exit 0
+      - name: Set up Python
+        uses: actions/setup-python@v5.6.0
+        with: { python-version: '3.x' }
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.x'
+      - name: Install build deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install build twine
+      - name: Build wheel & sdist
+        run: python -m build
 
-    - name: Build package
-      run: python -m build
-
-    - name: Publish package to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
