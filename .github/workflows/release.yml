@@ -4,7 +4,8 @@ on:
   push:
     branches: [main]          # bump version & create Release
   release:
-    types: [published]        # build & upload to PyPI
+    types: [published, created]        # build & upload to PyPI
+  workflow_dispatch:          # allow manual trigger
 
 permissions:
   contents: write
@@ -78,14 +79,14 @@ jobs:
             echo "- Version bump only" > CHANGELOG_GH_ACTION.md
           fi
 
-          echo "body_path=CHANGELOG_GH_ACTION.md" >> "$GITHUB_OUTPUT"
-
-      # Create GitHub Release with the changelog as body
+          echo "body_path=CHANGELOG_GH_ACTION.md" >> "$GITHUB_OUTPUT"      # Create GitHub Release with the changelog as body
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2.3.2
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.bump.outputs.new }}
           body_path: ${{ steps.changelog.outputs.body_path }}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -93,7 +94,7 @@ jobs:
 # 2. Job B: build & publish when Release fires
 # ────────────────────────────────────────
   deploy:
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'created')
     runs-on: ubuntu-latest
     environment: pypi
 
