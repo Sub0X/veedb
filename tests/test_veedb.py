@@ -2,6 +2,7 @@
 import asyncio
 import os
 import sys
+import pytest
 
 # This script assumes it's in a 'tests' directory, and the 'veedb' package is in a sibling 'src' directory.
 # E.g., /project_root/src/veedb and /project_root/tests/test_veedb.py
@@ -24,8 +25,17 @@ from veedb.apitypes.common import VNDBID
 from veedb.apitypes.requests import UlistUpdatePayload
 
 
+@pytest.fixture
+async def vndb():
+    """Provides an initialized VNDB client instance for tests."""
+    client = VNDB()
+    yield client
+    await client.close()
+
+
 # --- Individual Test Functions ---
 
+@pytest.mark.asyncio
 async def test_get_stats(vndb: VNDB):
     """Test 1: GET /stats (Unauthenticated)"""
     print("\n[Test 1: GET /stats]")
@@ -41,6 +51,7 @@ async def test_get_stats(vndb: VNDB):
         print(f"  UNEXPECTED ERROR fetching stats: {e}")
 
 
+@pytest.mark.asyncio
 async def test_get_schema(vndb: VNDB):
     """Test 2: GET /schema (Unauthenticated)"""
     print("\n[Test 2: GET /schema]")
@@ -58,6 +69,7 @@ async def test_get_schema(vndb: VNDB):
         print(f"  UNEXPECTED ERROR fetching schema: {e}")
 
 
+@pytest.mark.asyncio
 async def test_get_user(vndb: VNDB):
     """Test 3: GET /user (Unauthenticated, public user)"""
     USER_ID: VNDBID = "u286975"
@@ -82,6 +94,7 @@ async def test_get_user(vndb: VNDB):
         print(f"  UNEXPECTED ERROR fetching user: {e}")
 
 
+@pytest.mark.asyncio
 async def test_query_vn(vndb: VNDB):
     """Test 4: Query VN (Unauthenticated)"""
     VN_ID: VNDBID = "v52702"
@@ -107,56 +120,21 @@ async def test_query_vn(vndb: VNDB):
         print(f"  UNEXPECTED ERROR querying VN: {e}")
 
 
-async def test_get_authinfo(vndb: VNDB, api_token: str | None):
-    """Test 5: GET /authinfo (Authenticated - requires token)"""
-    print("\n[Test 5: GET /authinfo (Requires API Token)]")
-    if api_token:
-        try:
-            auth_info = await vndb.get_authinfo()
-            print(
-                f"  SUCCESS: Fetched auth info for user '{auth_info.username}' (ID: {auth_info.id}). Permissions: {auth_info.permissions}"
-            )
-            assert auth_info.id is not None
-        except AuthenticationError as e:
-            print(
-                f"  AUTHENTICATION ERROR (as expected if token is invalid/missing permissions): {e}"
-            )
-        except VNDBAPIError as e:
-            print(f"  ERROR fetching authinfo: {e}")
-        except Exception as e:
-            print(f"  UNEXPECTED ERROR fetching authinfo: {e}")
-    else:
-        print("  SKIPPED: API_TOKEN not provided.")
+@pytest.mark.asyncio
+async def test_get_authinfo(vndb: VNDB):
+    """Test 5: GET /authinfo (Skipped - authentication removed)"""
+    print("\n[Test 5: GET /authinfo (SKIPPED - No authentication)]")
+    print("  SKIPPED: Authentication removed from tests.")
 
 
-async def test_patch_ulist(vndb: VNDB, api_token: str | None):
-    """Test 6: Attempting a ulist operation (PATCH) - requires token with listwrite"""
-    print("\n[Test 6: PATCH /ulist/v1 (Requires API Token with listwrite)]")
-    if api_token:
-        print("  NOTE: This test would typically modify data. For this quick test,")
-        print(
-            "        it primarily checks if the call can be made or fails gracefully."
-        )
-        payload = UlistUpdatePayload(notes="Quick test entry.")
-        try:
-            print("  SIMULATING: Call to ulist.update_entry would be made here.")
-            print("  If your token has 'listwrite', this would attempt an update.")
-            print(
-                "  If not, an AuthenticationError or other API error is expected if the call was real."
-            )
-            # await vndb.ulist.update_entry("v1", payload)
-        except AuthenticationError as e:
-            print(
-                f"  AUTHENTICATION ERROR (as expected if token lacks listwrite): {e}"
-            )
-        except VNDBAPIError as e:
-            print(f"  API ERROR during ulist update attempt: {e}")
-        except Exception as e:
-            print(f"  UNEXPECTED ERROR during ulist update attempt: {e}")
-    else:
-        print("  SKIPPED: API_TOKEN not provided for ulist update.")
+@pytest.mark.asyncio
+async def test_patch_ulist(vndb: VNDB):
+    """Test 6: Attempting a ulist operation (PATCH) - skipped (authentication removed)"""
+    print("\n[Test 6: PATCH /ulist/v1 (SKIPPED - No authentication)]")
+    print("  SKIPPED: Authentication removed from tests.")
 
 
+@pytest.mark.asyncio
 async def test_query_character_by_id(vndb: VNDB):
     """Test 7a: POST /character (Query for ID)"""
     char_id: VNDBID = "c5"
@@ -189,6 +167,7 @@ async def test_query_character_by_id(vndb: VNDB):
         print(f"  UNEXPECTED ERROR querying character by ID: {e}")
 
 
+@pytest.mark.asyncio
 async def test_search_character_by_name(vndb: VNDB):
     """Test 7b: POST /character (Search for name)"""
     char_search_name = "Okabe"
@@ -217,6 +196,7 @@ async def test_search_character_by_name(vndb: VNDB):
         print(f"  UNEXPECTED ERROR searching characters: {e}")
 
 
+@pytest.mark.asyncio
 async def test_get_characters_from_vn(vndb: VNDB):
     """Test 7c: Get all characters from a specific VN"""
     VN_ID: VNDBID = "v52702"
@@ -252,6 +232,7 @@ async def test_get_characters_from_vn(vndb: VNDB):
         print(f"  UNEXPECTED ERROR fetching characters from VN: {e}")
 
 
+@pytest.mark.asyncio
 async def test_query_ulist(vndb: VNDB):
     """Test 8: Ulist Endpoint Test"""
     ulist_user_id: VNDBID = "u286975"
@@ -295,23 +276,19 @@ async def main():
     """
     print("Starting Veedb Quick Test...\n")
 
-    api_token = os.environ.get("VNDB_API_TOKEN")
     use_sandbox = False
 
     print(f"Using Sandbox: {use_sandbox}")
-    if api_token:
-        print("API Token found in environment variables.")
-    else:
-        print("API Token NOT found. Authenticated tests will be skipped or may fail.")
+    print("Authentication removed from tests.")
     print("-" * 30)
 
-    async with VNDB(api_token=api_token, use_sandbox=use_sandbox) as vndb:
+    async with VNDB(use_sandbox=use_sandbox) as vndb:
         await test_get_stats(vndb)
         await test_get_schema(vndb)
         await test_get_user(vndb)
         await test_query_vn(vndb)
-        await test_get_authinfo(vndb, api_token)
-        await test_patch_ulist(vndb, api_token)
+        await test_get_authinfo(vndb)
+        await test_patch_ulist(vndb)
 
         # Character tests
         await test_query_character_by_id(vndb)

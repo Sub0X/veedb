@@ -141,7 +141,7 @@ DevStatusEnum = Literal[0, 1, 2]  # 0: Finished, 1: In development, 2: Cancelled
 class ImageCommon:
     id: VNDBID
     url: str
-    dims: Tuple[int, int]  # [width, height]
+    dims: List[int]  # [width, height]
     sexual: float  # 0.0-2.0 (average flagging vote)
     violence: float  # 0.0-2.0 (average flagging vote)
     votecount: int
