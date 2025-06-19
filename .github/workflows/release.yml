@@ -88,13 +88,13 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
 # ────────────────────────────────────────
 # 2. Job B: build & publish when Release fires
 # ────────────────────────────────────────
   deploy:
-    if: github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'created')
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     environment: pypi
 
