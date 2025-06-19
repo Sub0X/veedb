@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]          # bump version & create Release
   release:
-    types: [published, created]        # build & upload to PyPI
+    types: [published]        # build & upload to PyPI
   workflow_dispatch:          # allow manual trigger
 
 permissions:
@@ -52,7 +52,7 @@ jobs:
           git config user.name  "github-actions"
           git config user.email "github-actions@github.com"
           git add src/veedb/VERSION
-          git commit -m "chore: bump version to v$NEW_VERSION [skip ci]" || true
+          git commit -m "chore: bump version to v$NEW_VERSION" || true
           git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
           git push origin HEAD
           git push origin "v$NEW_VERSION"
@@ -103,7 +103,8 @@ jobs:
 
       - name: Set up Python
         uses: actions/setup-python@v5.6.0
-        with: { python-version: '3.x' }
+        with:
+            python-version: '3.x'
 
       - name: Install build deps
         run: |

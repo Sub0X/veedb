@@ -34,9 +34,7 @@ class VNTitle:
 @dataclass
 class VNImageInfo(ImageCommon):  # For vn.image and vn.screenshots
     thumbnail: Optional[str] = None
-    thumbnail_dims: Optional[Tuple[int, int]] = None
-    # For screenshots, 'release' can be a nested object.
-    # Using Dict[str, Any] for simplicity, or define a VNScreenshotReleaseInfo
+
     release: Optional[Dict[str, Any]] = (
         None  # e.g. {'id': 'r123', 'title': 'Release Title'}
     )
@@ -47,8 +45,7 @@ class VNRelation:  # vn.relations
     id: VNDBID  # The related VN's ID
     relation: str  # e.g., "preq", "seq", "alt", "side", "par", "ser", "fan", "orig"
     relation_official: bool
-    # Other VN fields can be selected here via dot notation in the 'fields' query param
-    # Example: title of the related VN
+
     title: Optional[str] = None
     original_language: Optional[LanguageEnum] = None  # Example: olang of related VN
 
