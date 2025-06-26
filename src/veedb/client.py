@@ -1,7 +1,7 @@
 import asyncio
 import aiohttp
 import logging
-from typing import List, Optional, Union, TypeVar, Type, Dict, Any, Generic
+from typing import List, Optional, Union, TypeVar, Type, Dict, Any, Generic, AsyncGenerator
 
 from .methods.fetch import _fetch_api
 from .apitypes.common import (
@@ -114,14 +114,92 @@ class _BaseEntityClient(Generic[T_Entity, T_QueryItem]):
             query_options.fields = "id"
         return await self._post_query(query_options)
 
-    async def validate_filters(self, filters: Union[List, str, None]) -> Dict[str, Any]:
-        """Validates filters against the schema for this specific endpoint."""
-        return await self._client.validate_filters(self._endpoint_path, filters)
-    
-    async def get_available_fields(self) -> List[str]:
-        """Gets all available filterable fields for this endpoint."""
-        return await self._client.get_available_fields(self._endpoint_path)
+    async def query_all_pages(
+        self, query_options: QueryRequest = QueryRequest(), max_pages: Optional[int] = None
+    ) -> List[T_QueryItem]:
+        """
+        Fetch all results across multiple pages automatically.
+        
+        Args:
+            query_options: The query to execute
+            max_pages: Maximum number of pages to fetch (None for unlimited)
+            
+        Returns:
+            List of all results from all pages
+        """
+        if not query_options.fields:
+            query_options.fields = "id"
+            
+        all_results = []
+        page_number = 1
+        
+        while True:
+            # Create a copy of the query options with the current page number
+            current_query = QueryRequest(
+                filters=query_options.filters,
+                fields=query_options.fields,
+                sort=query_options.sort,
+                reverse=query_options.reverse,
+                results=query_options.results,
+                page=page_number,
+                user=query_options.user,
+                count=query_options.count,
+                compact_filters=query_options.compact_filters,
+                normalized_filters=query_options.normalized_filters,
+            )
+            
+            response = await self._post_query(current_query)
+            all_results.extend(response.results)
+            
+            if not response.more:
+                break
+                
+            if max_pages and page_number >= max_pages:
+                break
+                
+            page_number += 1
+            
+        return all_results
 
+    async def query_paginated(
+        self, query_options: QueryRequest = QueryRequest()
+    ) -> AsyncGenerator[QueryResponse[T_QueryItem], None]:
+        """
+        Generator that yields query responses page by page.
+        
+        Args:
+            query_options: The query to execute
+            
+        Yields:
+            QueryResponse objects for each page
+        """
+        if not query_options.fields:
+            query_options.fields = "id"
+            
+        page_number = 1
+        
+        while True:
+            # Create a copy of the query options with the current page number
+            current_query = QueryRequest(
+                filters=query_options.filters,
+                fields=query_options.fields,
+                sort=query_options.sort,
+                reverse=query_options.reverse,
+                results=query_options.results,
+                page=page_number,
+                user=query_options.user,
+                count=query_options.count,
+                compact_filters=query_options.compact_filters,
+                normalized_filters=query_options.normalized_filters,
+            )
+            
+            response = await self._post_query(current_query)
+            yield response
+            
+            if not response.more:
+                break
+                
+            page_number += 1
 
 class _VNClient(_BaseEntityClient[VN, VN]):
     def __init__(self, client: "VNDB"):
@@ -229,6 +307,88 @@ class _UlistClient:
         session = self._client._get_session()
         await _fetch_api(session=session, method="DELETE", url=url, token=self._client.api_token)
 
+    async def query_all_pages(
+        self, user_id: VNDBID, query_options: QueryRequest = QueryRequest(), max_pages: Optional[int] = None
+    ) -> List[UlistItem]:
+        """
+        Fetch all ulist results across multiple pages automatically.
+        
+        Args:
+            user_id: The user ID to query
+            query_options: The query to execute
+            max_pages: Maximum number of pages to fetch (None for unlimited)
+            
+        Returns:
+            List of all results from all pages
+        """
+        all_results = []
+        page_number = 1
+        
+        while True:
+            # Create a copy of the query options with the current page number
+            current_query = QueryRequest(
+                filters=query_options.filters,
+                fields=query_options.fields,
+                sort=query_options.sort,
+                reverse=query_options.reverse,
+                results=query_options.results,
+                page=page_number,
+                user=query_options.user,
+                count=query_options.count,
+                compact_filters=query_options.compact_filters,
+                normalized_filters=query_options.normalized_filters,
+            )
+            
+            response = await self.query(user_id, current_query)
+            all_results.extend(response.results)
+            
+            if not response.more:
+                break
+                
+            if max_pages and page_number >= max_pages:
+                break
+                
+            page_number += 1
+            
+        return all_results
+
+    async def query_paginated(
+        self, user_id: VNDBID, query_options: QueryRequest = QueryRequest()
+    ) -> AsyncGenerator[QueryResponse[UlistItem], None]:
+        """
+        Generator that yields ulist query responses page by page.
+        
+        Args:
+            user_id: The user ID to query
+            query_options: The query to execute
+            
+        Yields:
+            QueryResponse objects for each page
+        """
+        page_number = 1
+        
+        while True:
+            # Create a copy of the query options with the current page number
+            current_query = QueryRequest(
+                filters=query_options.filters,
+                fields=query_options.fields,
+                sort=query_options.sort,
+                reverse=query_options.reverse,
+                results=query_options.results,
+                page=page_number,
+                user=query_options.user,
+                count=query_options.count,
+                compact_filters=query_options.compact_filters,
+                normalized_filters=query_options.normalized_filters,
+            )
+            
+            response = await self.query(user_id, current_query)
+            yield response
+            
+            if not response.more:
+                break
+                
+            page_number += 1
 
 class _RlistClient:
     def __init__(self, client: "VNDB"):
