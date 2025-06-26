@@ -1,0 +1,20 @@
+# Include main requirements
+-r requirements.txt
+
+# Additional development dependencies
+sphinx>=8.0.0
+sphinx-rtd-theme
+build
+twine
+setuptools>=45
+wheel
+setuptools_scm[toml]>=6.2
+
+# Code quality tools
+black
+isort
+flake8
+mypy
+
+# Documentation dependencies
+myst-parser

@@ -3,6 +3,7 @@ import asyncio
 import os
 import sys
 import pytest
+import pytest_asyncio
 
 # This script assumes it's in a 'tests' directory, and the 'veedb' package is in a sibling 'src' directory.
 # E.g., /project_root/src/veedb and /project_root/tests/test_veedb.py
@@ -25,7 +26,7 @@ from veedb.apitypes.common import VNDBID
 from veedb.apitypes.requests import UlistUpdatePayload
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def vndb():
     """Provides an initialized VNDB client instance for tests."""
     client = VNDB()

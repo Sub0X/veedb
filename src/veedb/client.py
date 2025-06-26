@@ -201,6 +201,14 @@ class _BaseEntityClient(Generic[T_Entity, T_QueryItem]):
                 
             page_number += 1
 
+    async def validate_filters(self, filters: Union[List, str, None]) -> Dict[str, Any]:
+        """Validates filters against the schema for this specific endpoint."""
+        return await self._client.validate_filters(self._endpoint_path, filters)
+    
+    async def get_available_fields(self) -> List[str]:
+        """Gets all available filterable fields for this endpoint."""
+        return await self._client.get_available_fields(self._endpoint_path)
+
 class _VNClient(_BaseEntityClient[VN, VN]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/vn", VN, VN)
