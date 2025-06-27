@@ -520,12 +520,12 @@ class VNDB:
             parsed_response[key] = from_dict(data_class=User, data=value_data, config=dacite_config) if value_data else None
         return parsed_response
 
-    async def get_authinfo(self) -> AuthInfo:
-        if not self.api_token:
+    async def get_authinfo(self, token: str = None) -> AuthInfo:
+        if not self.api_token and not token:
             raise AuthenticationError("API token required for /authinfo endpoint.")
         url = f"{self.base_url}/authinfo"
         session = self._get_session()
-        response_data = await _fetch_api(session=session, method="GET", url=url, token=self.api_token)
+        response_data = await _fetch_api(session=session, method="GET", url=url, token=token or self.api_token)
         return from_dict(data_class=AuthInfo, data=response_data, config=dacite_config)
     
     def _get_filter_validator(self) -> FilterValidator:
