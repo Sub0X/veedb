@@ -11,6 +11,7 @@ from ..common import (
     PlatformEnum,
     DevStatusEnum,
     StaffRoleEnum,
+    TagCategoryEnum,
 )
 
 # Forward declarations for type hinting to avoid circular imports
@@ -20,6 +21,13 @@ if TYPE_CHECKING:
     from .staff import Staff  # Or StaffStub
     from .character import Character  # Or CharacterStub
     from .tag import Tag  # Or TagStub
+else:
+    # Import the actual classes for inheritance
+    from .release import Release
+    from .producer import Producer
+    from .staff import Staff
+    from .character import Character
+    from .tag import Tag
 
 
 @dataclass
@@ -32,43 +40,43 @@ class VNTitle:
 
 
 @dataclass
-class VNImageInfo(ImageCommon):  # For vn.image and vn.screenshots
+class VNImageInfo:  # For vn.image and vn.screenshots
+    # All ImageCommon fields as optional
+    id: Optional[VNDBID] = None
+    url: Optional[str] = None
+    dims: Optional[List[int]] = None  # [width, height]
+    sexual: Optional[float] = None  # 0.0-2.0 (average flagging vote)
+    violence: Optional[float] = None  # 0.0-2.0 (average flagging vote)
+    votecount: Optional[int] = None
+    
+    # VN-specific image fields
     thumbnail: Optional[str] = None
-
-    release: Optional[Dict[str, Any]] = (
-        None  # e.g. {'id': 'r123', 'title': 'Release Title'}
-    )
+    release: Optional["VNScreenshotRelease"] = None
 
 
 @dataclass
-class VNRelation:  # vn.relations
-    id: VNDBID  # The related VN's ID
-    relation: str  # e.g., "preq", "seq", "alt", "side", "par", "ser", "fan", "orig"
-    relation_official: bool
-
-    title: Optional[str] = None
-    original_language: Optional[LanguageEnum] = None  # Example: olang of related VN
+class VNScreenshotRelease(Release):  # screenshots.release.*
+    # All release fields are inherited from Release class
+    # This allows selecting any release field according to API docs
+    pass
 
 
 @dataclass
-class VNTagLink:  # vn.tags
-    id: VNDBID  # Tag ID
-    rating: float  # Tag rating/score (0.0 to 3.0)
-    spoiler: int  # Spoiler level (0, 1, or 2)
-    lie: bool
-    # Other Tag fields can be selected
-    name: Optional[str] = None  # Example: name of the tag
-    category: Optional[str] = None  # Example: category of the tag
+class VNTagLink(Tag):  # vn.tags
+    # Tag specific fields for VN links
+    rating: float = 0.0  # Tag rating/score (0.0 to 3.0)
+    spoiler: int = 0  # Spoiler level (0, 1, or 2)
+    lie: bool = False
+    
+    # All tag fields are inherited from Tag class
+    # This allows selecting any tag field according to API docs
 
 
 @dataclass
-class VNDeveloper:  # vn.developers - these are Producer objects
-    id: VNDBID  # Producer ID
-    # Other Producer fields can be selected
-    name: Optional[str] = None
-    original: Optional[str] = None
-    type: Optional[str] = None  # e.g. 'co', 'in', 'ng'
-    lang: Optional[LanguageEnum] = None
+class VNDeveloper(Producer):  # vn.developers - these are Producer objects
+    # All producer fields are inherited from Producer class
+    # This allows selecting any producer field according to API docs
+    pass
 
 
 @dataclass
@@ -80,28 +88,35 @@ class VNEdition:  # vn.editions
 
 
 @dataclass
-class VNStaffLink:  # vn.staff
-    id: VNDBID  # Staff ID (sid)
-    aid: int  # Staff Alias ID (aid) - the specific alias used for this role
-    role: StaffRoleEnum
+class VNStaffLink(Staff):  # vn.staff
+    # Staff specific fields for VN links
+    role: StaffRoleEnum = ""  # Required for VN staff links
     note: Optional[str] = None
     eid: Optional[int] = None  # Edition ID this staff worked on, null for original
-    # Other Staff fields can be selected
-    name: Optional[str] = None  # Example: staff member's name (for the given aid)
-    original: Optional[str] = None  # Example
+    
+    # All staff fields are inherited from Staff class
+    # This allows selecting any staff field according to API docs
 
 
 @dataclass
 class VNVoiceActor:  # vn.va
     note: Optional[str] = None
-    # staff and character are nested objects with their own selectable fields
-    # Using Dict[str, Any] for simplicity, or define VNStaffInfoForVA, VNCharacterInfoForVA
-    staff: Dict[str, Any] = field(
-        default_factory=dict
-    )  # e.g. {'id': 's1', 'name': 'Staff Name'}
-    character: Dict[str, Any] = field(
-        default_factory=dict
-    )  # e.g. {'id': 'c1', 'name': 'Char Name'}
+    staff: Optional["VNVAStaff"] = None
+    character: Optional["VNVACharacter"] = None
+
+
+@dataclass
+class VNVAStaff(Staff):  # va.staff.*
+    # All staff fields are inherited from Staff class
+    # This allows selecting any staff field according to API docs
+    pass
+
+
+@dataclass
+class VNVACharacter(Character):  # va.character.*
+    # All character fields are inherited from Character class
+    # This allows selecting any character field according to API docs
+    pass
 
 
 @dataclass
@@ -146,7 +161,7 @@ class VN:
     votecount: Optional[int] = None  # Number of votes
 
     screenshots: List[VNImageInfo] = field(default_factory=list)
-    relations: List[VNRelation] = field(default_factory=list)
+    relations: List["VNRelation"] = field(default_factory=list)
     tags: List[VNTagLink] = field(default_factory=list)  # Directly applied tags
     developers: List[VNDeveloper] = field(default_factory=list)
     editions: List[VNEdition] = field(default_factory=list)
@@ -157,3 +172,14 @@ class VN:
     extlinks: List[Extlink] = field(default_factory=list)
 
     # popularity field was deprecated
+
+
+# VNRelation defined after VN to allow inheritance
+@dataclass
+class VNRelation(VN):  # vn.relations
+    # VN relation specific fields
+    relation: str = ""  # e.g., "preq", "seq", "alt", "side", "par", "ser", "fan", "orig"
+    relation_official: bool = False
+    
+    # All VN fields are inherited from VN class
+    # This allows selecting any VN field according to API docs
