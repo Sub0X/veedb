@@ -90,26 +90,53 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}
 
-# ────────────────────────────────────────
-# 2. Job B: build & publish when Release fires
-# ────────────────────────────────────────
-  deploy:
-    if: github.event_name == 'release'
-    runs-on: ubuntu-latest
-    environment: pypi
+      # ─────────────────────────────────────────────────────────
+      # Build + publish to PyPI in the same job — relying on the
+      # release.published event to fire downstream is unreliable
+      # when the Release is created by an action (a previous setup
+      # broke quietly between v0.1.7 and v0.1.10, leaving PyPI
+      # behind the git tags by three versions).
+      # ─────────────────────────────────────────────────────────
 
-    steps:
-      - uses: actions/checkout@v4.2.2  # exact tagged commit
-
-      - name: Set up Python
+      - name: Set up Python (publish)
         uses: actions/setup-python@v5.6.0
-        with:
-            python-version: '3.x'
+        with: { python-version: '3.x' }
 
       - name: Install build deps
         run: |
           python -m pip install --upgrade pip
           pip install build twine
+
+      - name: Build wheel & sdist
+        run: |
+          # Make sure we build from the freshly bumped checkout —
+          # the VERSION write happened earlier in this job.
+          python -m build
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+
+# ────────────────────────────────────────
+# 2. Manual republish-only path (workflow_dispatch)
+#    Useful when PyPI is behind the git tag and you want to
+#    reprocess the latest tag without bumping again.
+# ────────────────────────────────────────
+  republish:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5.6.0
+        with: { python-version: '3.x' }
+
+      - name: Install build deps
+        run: pip install build twine
 
       - name: Build wheel & sdist
         run: python -m build
@@ -119,3 +146,4 @@ jobs:
         with:
           user: __token__
           password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true
