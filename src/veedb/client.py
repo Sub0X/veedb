@@ -1,4 +1,5 @@
 import asyncio
+import os
 import aiohttp
 import logging
 from typing import List, Optional, Union, TypeVar, Type, Dict, Any, Generic, AsyncGenerator
@@ -247,11 +248,24 @@ class _UlistClient:
         self._client = client
 
     async def query(
-        self, user_id: VNDBID, query_options: QueryRequest = QueryRequest()
+        self,
+        user_id: Optional[VNDBID] = None,
+        query_options: QueryRequest = QueryRequest(),
     ) -> QueryResponse[UlistItem]:
+        # Allow callers to pass either positional user_id or set
+        # `user` on the QueryRequest itself (the upstream API accepts
+        # the latter, and our self-hosted backend follows the same shape).
+        if isinstance(user_id, QueryRequest):
+            query_options = user_id
+            user_id = None
         url = f"{self._client.base_url}/ulist"
         payload = query_options.to_dict()
-        payload["user"] = user_id
+        if user_id is not None:
+            payload["user"] = user_id
+        elif "user" not in payload or payload["user"] is None:
+            raise InvalidRequestError(
+                "ulist.query requires `user_id` (positional) "
+                "or `user` set on the QueryRequest")
         session = self._client._get_session()
         response_data = await _fetch_api(
             session=session,
@@ -429,12 +443,28 @@ class VNDB:
         api_token: Optional[str] = None,
         use_sandbox: bool = False,
         session: Optional[aiohttp.ClientSession] = None,
-        local_schema_path: Optional[str] = None, 
-        schema_cache_dir: str = ".veedb_cache", 
+        local_schema_path: Optional[str] = None,
+        schema_cache_dir: str = ".veedb_cache",
         schema_cache_ttl_hours: float = 15 * 24,  # Default to 15 days
+        base_url: Optional[str] = None,
     ):
+        """
+        Args:
+            base_url: Override the kana API endpoint. Useful for self-hosted
+                replicas. Falls back to the `VEEDB_BASE_URL` environment
+                variable, then to the upstream `api.vndb.org/kana` (or sandbox
+                if `use_sandbox=True`). Strip any trailing slash.
+        """
         self.api_token = api_token
-        self.base_url = SANDBOX_URL if use_sandbox else BASE_URL
+
+        # Resolution order: explicit kwarg > env > sandbox flag > prod default.
+        env_url = os.environ.get("VEEDB_BASE_URL")
+        if base_url is not None:
+            self.base_url = base_url.rstrip("/")
+        elif env_url:
+            self.base_url = env_url.rstrip("/")
+        else:
+            self.base_url = SANDBOX_URL if use_sandbox else BASE_URL
         self._session_param = session
         self._session_internal: Optional[aiohttp.ClientSession] = None
         self._session_owner = session is None
