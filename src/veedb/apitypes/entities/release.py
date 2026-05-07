@@ -28,26 +28,23 @@ class ReleaseMedia:
 @dataclass
 class ReleaseVNLink:
     id: VNDBID # VN ID
-    rtype: Literal["trial", "partial", "complete"]
+    # Optional — only present when explicitly requested in `fields=`.
+    rtype: Optional[Literal["trial", "partial", "complete"]] = None
     # Allows fetching other VN fields, e.g., title, olang
-    # These would be Optional and depend on the 'fields' parameter in the query
     title: Optional[str] = None
     original_language: Optional[LanguageEnum] = None
-    # Add other commonly requested VN fields as Optional here
-    # Or use a more generic approach if many fields are possible:
-    # vn_details: Optional[Dict[str, Any]] = None # For any other requested VN fields
 
 
 @dataclass
 class ReleaseProducerLink:
     id: VNDBID # Producer ID
-    developer: bool
-    publisher: bool
+    # Optional — only present when explicitly requested.
+    developer: Optional[bool] = None
+    publisher: Optional[bool] = None
     # Allows fetching other Producer fields
     name: Optional[str] = None
     original_name: Optional[str] = None
     type: Optional[ProducerTypeEnum] = None
-    # lang: Optional[LanguageEnum] = None
 
 
 @dataclass

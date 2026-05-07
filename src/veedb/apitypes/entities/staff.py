@@ -9,9 +9,10 @@ StaffGenderEnum = Literal["m", "f"]
 @dataclass
 class StaffAlias:
     aid: int # Alias ID
-    name: str # Name in original script
-    ismain: bool # Whether this alias is the "main" name for the staff entry
-    latin: Optional[str] = None # Romanized version of 'name' - MOVED AFTER ismain
+    # Optional — only present when explicitly requested in `fields=`.
+    name: Optional[str] = None # Name in original script
+    ismain: Optional[bool] = None # Whether this alias is the "main" name
+    latin: Optional[str] = None # Romanized version of 'name'
 
 
 @dataclass
