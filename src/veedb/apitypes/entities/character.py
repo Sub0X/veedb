@@ -37,8 +37,11 @@ class CharacterVNLink:
 @dataclass
 class CharacterTraitLink:
     id: VNDBID # Trait ID
-    spoiler: int # 0, 1, or 2
-    lie: bool
+    # Per kana field-selection rules these are only present when
+    # explicitly requested in `fields=`. Make them Optional so partial
+    # selections like `traits{name}` parse cleanly.
+    spoiler: Optional[int] = None # 0, 1, or 2
+    lie: Optional[bool] = None
     # Other Trait fields can be selected
     name: Optional[str] = None # Example: Trait name
     # group_name: Optional[str] = None # Example
