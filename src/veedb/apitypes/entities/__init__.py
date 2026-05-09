@@ -17,6 +17,7 @@ from .staff import Staff, StaffAlias, StaffGenderEnum
 from .tag import Tag # Assuming TagCategoryEnum is in common.py or tag.py itself
 from .trait import Trait
 from .quote import Quote
+from .review import Review, ReviewLengthEnum
 from .user import User, AuthInfo, UserStats
 from .ulist import UlistItem, UlistLabel, UlistLabelInfo, UlistReleaseInfo
 
@@ -47,6 +48,9 @@ __all__ = [
 
     # Quote related
     "Quote",
+
+    # Review related (VeeSQL-only; not part of upstream VNDB API)
+    "Review", "ReviewLengthEnum",
 
     # User related
     "User", "AuthInfo", "UserStats",

@@ -21,6 +21,7 @@ from .apitypes.entities import (
     Tag,
     Trait,
     Quote,
+    Review,
     User,
     AuthInfo,
     UlistItem,
@@ -241,6 +242,15 @@ class _TraitClient(_BaseEntityClient[Trait, Trait]):
 class _QuoteClient(_BaseEntityClient[Quote, Quote]):
     def __init__(self, client: "VNDB"):
         super().__init__(client, "/quote", Quote, Quote)
+
+
+class _ReviewClient(_BaseEntityClient[Review, Review]):
+    """User reviews. VeeSQL-only — the upstream VNDB HTTPS API does not
+    expose a /review endpoint. This client only works against a kana
+    base URL pointed at a self-hosted VeeSQL mirror."""
+
+    def __init__(self, client: "VNDB"):
+        super().__init__(client, "/review", Review, Review)
 
 
 class _UlistClient:
@@ -491,6 +501,10 @@ class VNDB:
         self.tag = _TagClient(self)
         self.trait = _TraitClient(self)
         self.quote = _QuoteClient(self)
+        # VeeSQL-only: the upstream VNDB API has no /review endpoint;
+        # this attribute only resolves when `base_url` points at a
+        # self-hosted mirror that has the review-sync job running.
+        self.review = _ReviewClient(self)
         self.ulist = _UlistClient(self)
         self.rlist = _RlistClient(self)
 
